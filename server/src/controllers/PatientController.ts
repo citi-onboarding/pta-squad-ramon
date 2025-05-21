@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { PatientRepository } from '../repositories';
-import {CreatePatient, U} from '../DTO/index';
+import {CreatePatient, UpdatePatient} from '../DTO/index';
 
 //diferenca req params (id que vem na url) e req body (dados que vem no corpo do objeto da requisição)
 class PatientController {
@@ -58,7 +58,7 @@ class PatientController {
     async update(req: Request, res: Response, next: NextFunction) { 
         try {
             const { id } = req.params; 
-            const patientData = CreatePatient.parse(req.body);
+            const patientData = UpdatePatient.parse(req.body);
             const patientExists = await PatientRepository.findOne(Number(id));
 
             if (!patientExists) {
