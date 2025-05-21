@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { PatientRepository } from '../repositories';
-import {CreatePatient} from '../DTO/index';
+import {CreatePatient, U} from '../DTO/index';
 
 //diferenca req params (id que vem na url) e req body (dados que vem no corpo do objeto da requisição)
 class PatientController {
