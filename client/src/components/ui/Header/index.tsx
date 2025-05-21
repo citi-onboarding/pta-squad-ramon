@@ -15,8 +15,8 @@ export default function Header() {
                 <div className="w-[189px] h-[74px]">
                     <Image src={LogoCITipet} alt="Logo" />
                 </div>
-                <ul className='list-none flex gap-[48px]'>
-                    <li className='header-item'>
+                <ul className='list-none flex gap-12'>
+                    <li>
                         <Link href="/atendimento" className={`pb-1 ${pathname === '/atendimento' ? 'border-b-2 border-green-500' : ''}`}>
                             Atendimento
                         </Link>
@@ -28,7 +28,7 @@ export default function Header() {
                     </li>
                 </ul>
 
-                <p className="text-base flex items-center gap-1" style={{ color: '#7D1AD7'}}>
+                <p className="text-base flex items-center gap-1 text-[#7D1AD7]">
                     made with
                         <Image src={ Heart } alt="Heart" width={24} height={24} />
                         and {'</>'} by
