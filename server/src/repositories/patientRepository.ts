@@ -8,7 +8,7 @@ class PatientRepository {
         return patients;
     }
 
-    async findOne(id: string): Promise<Patient | null> {
+    async findOne(id: number): Promise<Patient | null> {
         const patient = await prisma.patient.findUnique({ where: { id } });
         return patient;
     }
@@ -18,12 +18,12 @@ class PatientRepository {
         return patient;
     }
 
-    async update(id: string, data: Prisma.PatientUpdateInput): Promise<Patient> {
+    async update(id: number, data: Prisma.PatientUpdateInput): Promise<Patient> {
         const patient = await prisma.patient.update({ where: { id }, data });
         return patient;
     }
 
-    async delete(id: string): Promise<Patient> {
+    async delete(id: number): Promise<Patient> {
         const patient = await prisma.patient.delete({ where: { id } });
         return patient;
     }

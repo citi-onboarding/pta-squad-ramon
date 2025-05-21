@@ -1,13 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { PatientRepository } from '../repositories';
-import { z } from "zod";
-
-const CreatePatient = z.object({
-  name: z.string(),
-  tutorName: z.string(),
-  age: z.number(),
-  species: z.enum(['gato', 'cachorro', 'porco', 'cavalo', 'ovelha', 'vaca']),
-});
+import {CreatePatient} from '../DTO/index';
 
 //diferenca req params (id que vem na url) e req body (dados que vem no corpo do objeto da requisição)
 class PatientController {
@@ -42,7 +35,7 @@ class PatientController {
 
     async findOne(req: Request, res: Response, next: NextFunction) {
         try {
-            const patient = await PatientRepository.findOne(req.params.id);
+            const patient = await PatientRepository.findOne(Number(req.params.id));
             if (!patient) {
                 res.locals = {
                     status: 404,
@@ -66,7 +59,7 @@ class PatientController {
         try {
             const { id } = req.params; 
             const patientData = CreatePatient.parse(req.body);
-            const patientExists = await PatientRepository.findOne(id);
+            const patientExists = await PatientRepository.findOne(Number(id));
 
             if (!patientExists) {
                 res.locals = {
@@ -76,7 +69,7 @@ class PatientController {
                 };
                 return next();
             }
-            const patient = await PatientRepository.update(id, patientData);
+            const patient = await PatientRepository.update(Number(id), patientData);
             res.locals = {
                 status: 200,
                 message: 'Pacient updated',
@@ -91,7 +84,7 @@ class PatientController {
     async delete(req: Request, res: Response, next: NextFunction) {
         try {
             const { id } = req.params;
-            const patientExists = await PatientRepository.findOne(id);
+            const patientExists = await PatientRepository.findOne(Number(id));
             
             if (!patientExists) {
                 res.locals = {
@@ -101,7 +94,7 @@ class PatientController {
                 };
                 return next();
             }
-            await PatientRepository.delete(id);
+            await PatientRepository.delete(Number(id));
             res.locals = {
                 status: 204,
                 message: 'Pacient deleted',
