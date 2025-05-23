@@ -46,12 +46,12 @@ model Appointment {
   doctor String
   appointmentType  AppointmentTypes
 
-  petId  Int
-  pet    Pet      @relation(fields: [petId], references: [id])
+  patientId  Int
+  patient    Patient      @relation(fields: [patientId], references: [id])
 }
 
 
-model Pet {
+model Patient {
   id        Int          @id @default(autoincrement())
   name      String
   tutorName String
