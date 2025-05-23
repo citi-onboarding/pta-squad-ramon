@@ -1,110 +1,59 @@
 import { Request, Response, NextFunction } from "express";
-import { PatientRepository } from '../repositories';
-import {CreatePatient, UpdatePatient} from '../DTO/index';
+import { Citi, Crud } from "../global";
 
-//diferenca req params (id que vem na url) e req body (dados que vem no corpo do objeto da requisição)
-class PatientController {
-    async create(req: Request, res: Response, next: NextFunction){
-        try{
-            const patientData = CreatePatient.parse(req.body);
-            const patient = await PatientRepository.create(patientData); 
-            res.locals = {
-                status: 201,
-                message: 'Paciente criado',
-                data: patient,
-            };
-            return next();
-        } catch(error){
-            return next(error);
-        }
-    }
+class PatientController implements Crud {
+    constructor(private readonly citi = new Citi("Patient")) {}
+    create = async (request: Request, response: Response) => {
+        const { name, tutorName , age , species} = request.body;
+        const isAnyUndefined = this.citi.areValuesUndefined(
+            name,
+            tutorName,
+            age,
+            species,
+       );
+      if (isAnyUndefined) return response.status(400).send();
 
-    async findAll(req: Request, res: Response, next: NextFunction) {
+      const newPatient = { name, tutorName, age, species };
+      const { httpStatus, message } = await this.citi.insertIntoDatabase(newPatient);
+
+      return response.status(httpStatus).send({ message });
+    };
+
+    get = async (request: Request, response: Response) => {
         try {
-            const patients = await PatientRepository.findAll();
-            res.locals = {
-                status: 200,
-                message: 'Pacients found',
-                data: patients,
-            };
-            return next();
+            const { httpStatus, values } = await this.citi.getAll();
+            return response.status(httpStatus).send(values);
         } catch (error) {
-            return next(error);
+            return response.status(500).send({ message: "Internal server error" });
         }
-    }
+    };
 
-    async findOne(req: Request, res: Response, next: NextFunction) {
+    findById = async (request: Request, response: Response) => {
         try {
-            const patient = await PatientRepository.findOne(Number(req.params.id));
-            if (!patient) {
-                res.locals = {
-                    status: 404,
-                    message: 'Pacients not found',
-                    data: null,
-                };
-                return next();
-            }
-            res.locals = {
-                status: 200,
-                message: 'Pacient found',
-                data: patient,
-            };
-            return next();
+            const { id } = request.params;
+            const { httpStatus, value } = await this.citi.findById(id);
+            return response.status(httpStatus).send(value);
         } catch (error) {
-            return next(error);
+            return response.status(500).send({ message: "Internal server error" });
         }
-    }
+    };
 
-    async update(req: Request, res: Response, next: NextFunction) { 
-        try {
-            const { id } = req.params; 
-            const patientData = UpdatePatient.parse(req.body);
-            const patientExists = await PatientRepository.findOne(Number(id));
+    update = async (request: Request, response: Response) => {
+        const { id } = request.params;
+        const { name, tutorName , age , species} = request.body;
+        const updatedValues = { name, tutorName , age , species};
+        const { httpStatus, messageFromUpdate } = await this.citi.updateValue(
+            id,
+            updatedValues
+        );
 
-            if (!patientExists) {
-                res.locals = {
-                    status: 404,
-                    message: 'Pacient not found',
-                    data: null,
-                };
-                return next();
-            }
-            const patient = await PatientRepository.update(Number(id), patientData);
-            res.locals = {
-                status: 200,
-                message: 'Pacient updated',
-                data: patient,
-            };
-            return next();
-        } catch (error) {
-            return next(error);
-        }
-    }
+        return response.status(httpStatus).send({ messageFromUpdate });
+    };
 
-    async delete(req: Request, res: Response, next: NextFunction) {
-        try {
-            const { id } = req.params;
-            const patientExists = await PatientRepository.findOne(Number(id));
-            
-            if (!patientExists) {
-                res.locals = {
-                    status: 404,
-                    message: 'Pacient not found',
-                    data: null,
-                };
-                return next();
-            }
-            await PatientRepository.delete(Number(id));
-            res.locals = {
-                status: 204,
-                message: 'Pacient deleted',
-                data: null,
-            };
-            return next();
-        } catch (error) {
-            return next(error);
-        }
-    }
+    delete = async (request: Request, response: Response) => {
+        const { id } = request.params;
+        const { httpStatus, messageFromDelete } = await this.citi.deleteValue(id);
+        return response.status(httpStatus).send({ messageFromDelete });
+    };
 }
-
 export default new PatientController();
