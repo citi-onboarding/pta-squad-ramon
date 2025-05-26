@@ -4,4 +4,4 @@ import Heart from "./header/favorite.svg";
 import LogotipoCITi from "./header/Logotipo CITi 1.svg";
 import Cat from "./cardpet/cat 4.svg";
 
-export { LogoCITi, Cat };
+export { LogoCITi, Cat, LogoCITipet, Heart, LogotipoCITi };
