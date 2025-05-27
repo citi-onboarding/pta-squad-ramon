@@ -2,21 +2,21 @@ import { Request, Response } from "express";
 import { Citi, Crud } from "../global";
 
 class AppointmentController implements Crud {
-  constructor(private readonly citi = new Citi("User")) {}
+  constructor(private readonly citi = new Citi("Appointment")) {}
   create = async (request: Request, response: Response) => {
-    const { type, doctorName, dateTime, description, patientId } = request.body;
-
+    const { type, doctorName, date, time, description, patientId } = request.body;
     const isAnyUndefined = this.citi.areValuesUndefined(
       type, 
       doctorName, 
-      dateTime, 
+      date,
+      time, 
       description, 
       patientId
     );
     if (isAnyUndefined) return response.status(400).send();
 
-    const newApointment = {  type, doctorName, dateTime, description, patientId  };
-    const { httpStatus, message } = await this.citi.insertIntoDatabase(newApointment);
+    const newAppointment = {  type, doctorName, date, time, description, patientId  };
+    const { httpStatus, message } = await this.citi.insertIntoDatabase(newAppointment);
 
     return response.status(httpStatus).send({ message });
   };
@@ -28,7 +28,7 @@ class AppointmentController implements Crud {
     } catch (error) {
         return response.status(500).send({ message: "Internal server error" });
     }
-}
+};
 
   delete = async (request: Request, response: Response) => {
     const { id } = request.params;
@@ -47,9 +47,9 @@ findById = async (request: Request, response: Response) => {
     };
   update = async (request: Request, response: Response) => {
     const { id } = request.params;
-    const { type, doctorName, dateTime, description, patientId } = request.body;
+    const { type, doctorName, date, time, description, patientId } = request.body;
 
-    const updatedValues = { type, doctorName, dateTime, description, patientId };
+    const updatedValues = { type, doctorName, date, time, description, patientId };
 
     const { httpStatus, messageFromUpdate } = await this.citi.updateValue(
       id,
