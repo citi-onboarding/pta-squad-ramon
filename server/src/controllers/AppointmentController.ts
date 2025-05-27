@@ -4,10 +4,10 @@ import { Citi, Crud } from "../global";
 class AppointmentController implements Crud {
   constructor(private readonly citi = new Citi("Appointment")) {}
   create = async (request: Request, response: Response) => {
-    const { type, doctorName, date, time, description, patientId } = request.body;
+    const { appointmentType, doctor, date, time, description, patientId } = request.body;
     const isAnyUndefined = this.citi.areValuesUndefined(
-      type, 
-      doctorName, 
+      appointmentType, 
+      doctor, 
       date,
       time, 
       description, 
@@ -15,7 +15,7 @@ class AppointmentController implements Crud {
     );
     if (isAnyUndefined) return response.status(400).send();
 
-    const newAppointment = {  type, doctorName, date, time, description, patientId  };
+    const newAppointment = {  appointmentType, doctor, date, time, description, patientId  };
     const { httpStatus, message } = await this.citi.insertIntoDatabase(newAppointment);
 
     return response.status(httpStatus).send({ message });
@@ -47,9 +47,9 @@ findById = async (request: Request, response: Response) => {
     };
   update = async (request: Request, response: Response) => {
     const { id } = request.params;
-    const { type, doctorName, date, time, description, patientId } = request.body;
+    const { appointmentType, doctor, date, time, description, patientId } = request.body;
 
-    const updatedValues = { type, doctorName, date, time, description, patientId };
+    const updatedValues = { appointmentType, doctor, date, time, description, patientId };
 
     const { httpStatus, messageFromUpdate } = await this.citi.updateValue(
       id,
