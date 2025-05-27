@@ -24,6 +24,7 @@ class AppointmentController implements Crud {
   get = async (request: Request, response: Response) => {
     try{
         const { httpStatus, values } = await this.citi.getAll();
+        return response.status(httpStatus).send(values);
     } catch (error) {
         return response.status(500).send({ message: "Internal server error" });
     }
@@ -35,6 +36,15 @@ class AppointmentController implements Crud {
     return response.status(httpStatus).send({ messageFromDelete });
   };
 
+findById = async (request: Request, response: Response) => {
+    try {
+      const { id } = request.params;
+      const { httpStatus, value } = await this.citi.findById(id);
+      return response.status(httpStatus).send(value);
+  } catch (error) {
+    return response.status(500).send({ message: "Internal server error" });
+  }
+    };
   update = async (request: Request, response: Response) => {
     const { id } = request.params;
     const { type, doctorName, dateTime, description, patientId } = request.body;
