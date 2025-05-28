@@ -16,11 +16,11 @@ routes.post('/patients', PatientController.create);
 routes.put('/patients/:id', PatientController.update); 
 routes.delete('/patients/:id', PatientController.delete);
 
-routes.get('/consultas', AppointmentController.get);
-routes.get('/consultas/:id', AppointmentController.findById);
-routes.post('/consultas', AppointmentController.create);
-routes.put('/consultas/:id', AppointmentController.update);
-routes.delete('/consultas/:id', AppointmentController.delete);
+routes.get('/appointments', AppointmentController.get);
+routes.get('/appointments/:id', AppointmentController.findById);
+routes.post('/appointments', AppointmentController.create);
+routes.put('/appointments/:id', AppointmentController.update);
+routes.delete('/appointments/:id', AppointmentController.delete);
 
 export default routes;
 
