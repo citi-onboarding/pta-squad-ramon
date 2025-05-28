@@ -71,7 +71,7 @@ export default function TelaAtendimento() {
                 nomeTutor="João Alves"
                 nomeVeterinario="Dr. José Carlos"
                 tipoConsulta="check-up"
-                imagemPet="/assets/gato.png"
+                imagemPet="././assets/cardpet/cat 4.svg"
               />
               <CardConsultaPet
                 dataHora="18/02 13:00"
@@ -152,10 +152,10 @@ export default function TelaAtendimento() {
             </div>
           </TabsContent>
         </Tabs>
-          <div className="flex justify-end mb-[76px] pr-[256px] border pt-[65px]">
+          <div className="flex justify-end mb-[76px] pr-[256px] border border-black pt-[65px] w-[256px]">
             <BotaoAcao
               texto="Nova Consulta"
-              cor="bg-[#50E678]  h-[48px] w-[205px]"
+              cor="bg-[#50E678]"
               icone={<CirclePlus className="text-white" />}
               onClick={() => {}}
             />
