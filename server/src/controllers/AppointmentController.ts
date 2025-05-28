@@ -13,7 +13,7 @@ class AppointmentController implements Crud {
       description, 
       patientId
     );
-    if (isAnyUndefined) return response.status(400).send();
+    if (isAnyUndefined) return response.status(400).send("All fields are required.");
 
     const newAppointment = {  appointmentType, doctor, date, time, description, patientId  };
     const { httpStatus, message } = await this.citi.insertIntoDatabase(newAppointment);
