@@ -68,7 +68,11 @@ export default function ModalConsulta({onClose}: ModalProps) {
 
   const onSubmit = (data: FormData) => {
     console.log(data);
-    //onClose();
+    try{
+        onClose();
+    } catch (error) {
+        console.error("Erro ao finalizar cadastro:", error);
+    }
   };
 
   return (

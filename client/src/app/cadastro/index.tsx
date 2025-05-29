@@ -8,6 +8,8 @@ import {Ovelha, Cachorro, Gato, Girafa, Porco, Cavalo} from '@/assets';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import ModalCadastro from '@/components/ModalCadastro';
+import { useState } from 'react';
 
 const formSchema = z.object({
   nomemPaciente: z.string().min(1, { message: 'Nome do paciente é obrigatório' }),
@@ -19,6 +21,8 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 export default function TelaCadastro() {
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const animais = [
     { name: 'Ovelha', src: Ovelha, alt: 'Ovelha' },
@@ -43,6 +47,7 @@ export default function TelaCadastro() {
   
   const onSubmit = (data: FormData) => {
     console.log(data);
+    setIsModalOpen(true);
   };
   
   return (
@@ -100,6 +105,10 @@ export default function TelaCadastro() {
           onClick={handleSubmit(onSubmit)}
         />
     </div>
+
+    {isModalOpen && (
+      <ModalCadastro onClose={() => setIsModalOpen(false)} />
+    )}
 
     </>
 
