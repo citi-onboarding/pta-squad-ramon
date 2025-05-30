@@ -102,7 +102,7 @@ export default function TelaAtendimento() {
                   <DropdownMenuSeparator />
                 </DropdownMenuContent>
               </DropdownMenu>
-              <div className="pt-[4px] border border-pink-600 flex flex-row w-full">
+              <div className="pt-[4px]  flex flex-row w-full">
                 <Button
                   className="bg-[#7D1AD7] text-white text-base w-[116px] h-[42px] font-bold border rounded-3xl pt-[12px] pr-[32px] pb-[12px] pl-[32px]"
                   onClick={() => setMedicoSelecionado("")}
@@ -114,7 +114,7 @@ export default function TelaAtendimento() {
           </div>
           <div>
             <Tabs defaultValue="agendamento" className="mt-[40px]">
-              <div className="flex border border-black">
+              <div className="flex ">
                 <TabsList className="h-[58px] p-2 flex flex-row justify-start">
                   <div>
                     <TabsTrigger
@@ -140,7 +140,7 @@ export default function TelaAtendimento() {
                       id="date"
                       variant={"outline"}
                       className={cn(
-                        "w-[300px] justify-start text-left font-normal",
+                        "w-[300px]  justify-start text-left font-normal h-[58px]",
                         !date && "text-muted-foreground"
                       )}
                     >
