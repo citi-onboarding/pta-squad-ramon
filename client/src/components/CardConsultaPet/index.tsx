@@ -9,7 +9,7 @@ type CardConsultaPetProps = {
   nomeTutor: string;
   nomeVeterinario: string;
   tipoConsulta: 'primeira consulta' | 'retorno' | 'check-up' | 'vacinação';
-  imagemPet: string;
+  imagemPet: any;
 };
 
 const CoresPorTipoConsulta: Record<CardConsultaPetProps['tipoConsulta'], string> = {

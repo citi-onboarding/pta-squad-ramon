@@ -26,6 +26,7 @@ import Header from "@/components/Header";
 import CardConsultaPet from "@/components/CardConsultaPet";
 import { CirclePlus } from "lucide-react";
 import { useState } from "react";
+import { Cat } from "@/assets";
 
 export default function TelaAtendimento() {
   const [medicoSelecionado, setMedicoSelecionado] = useState("");
@@ -41,7 +42,7 @@ export default function TelaAtendimento() {
       nomeTutor: "João Alves",
       nomeVeterinario: "Dr. Carlos Eduardo Silva",
       tipoConsulta: "primeira consulta",
-      imagemPet: "/assets/gato.png",
+      imagemPet: Cat,
       data: new Date(2024, 2, 18, 13, 0), //serve para filtros
     },
     {
@@ -50,7 +51,7 @@ export default function TelaAtendimento() {
       nomeTutor: "João Alves",
       nomeVeterinario: "Dra. Fernanda Costa",
       tipoConsulta: "retorno",
-      imagemPet: "/assets/gato.png",
+      imagemPet: Cat,
       data: new Date(2024, 1, 18, 13, 0),
     },
     {
@@ -59,7 +60,7 @@ export default function TelaAtendimento() {
       nomeTutor: "João Alves",
       nomeVeterinario: "Dr. Carlos Eduardo Silva",
       tipoConsulta: "check-up",
-      imagemPet: "/assets/cardpet/cat 4.svg",
+      imagemPet: Cat,
       data: new Date(2024, 1, 18, 13, 0),
     },
     {
@@ -68,7 +69,7 @@ export default function TelaAtendimento() {
       nomeTutor: "João Alves",
       nomeVeterinario: "Dr. José Carlos",
       tipoConsulta: "vacinação",
-      imagemPet: "/assets/gato.png",
+      imagemPet: Cat,
       data: new Date(2024, 1, 18, 13, 0),
     },
     {
@@ -77,7 +78,7 @@ export default function TelaAtendimento() {
       nomeTutor: "João Alves",
       nomeVeterinario: "Dr. José Carlos",
       tipoConsulta: "vacinação",
-      imagemPet: "/assets/gato.png",
+      imagemPet: Cat,
       data: new Date(2024, 1, 18, 13, 0),
     },
     {
@@ -86,7 +87,7 @@ export default function TelaAtendimento() {
       nomeTutor: "João Alves",
       nomeVeterinario: "Dr. José Carlos",
       tipoConsulta: "primeira consulta",
-      imagemPet: "/assets/gato.png",
+      imagemPet: Cat,
       data: new Date(2024, 1, 18, 13, 0),
     },
   ]);
