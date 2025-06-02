@@ -242,7 +242,7 @@ export default function TelaAtendimento() {
                 value="agendamento"
                 className="justify-center items-center flex flex-col mt-0"
               >
-                <div className="grid grid-cols-3 gap-6 w-full mt-8 max-h-[326px] overflow-y-scroll scrollbar-none">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mt-8 max-h-[326px] overflow-y-scroll scrollbar-none">
                   {cardsFiltrados.map((card, idx) => ( //renderização dos cards por filtro
                     <CardConsultaPet
                       key={idx}

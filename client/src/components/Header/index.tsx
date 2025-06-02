@@ -28,7 +28,7 @@ export default function Header() {
                     </li>
                 </ul>
 
-                <p className="text-base flex items-center gap-1 text-[#7D1AD7]">
+                <p className="hidden md:flex text-base items-center gap-1 text-[#7D1AD7]">
                     made with
                         <Image src={ Heart } alt="Heart" width={24} height={24} />
                         and {'</>'} by
