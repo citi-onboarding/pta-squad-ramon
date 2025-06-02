@@ -9,7 +9,7 @@ type CardConsultaPetProps = {
   nomeTutor: string;
   nomeVeterinario: string;
   tipoConsulta: 'primeira consulta' | 'retorno' | 'check-up' | 'vacinação';
-  imagemPet: string;
+  imagemPet: any;
 };
 
 const CoresPorTipoConsulta: Record<CardConsultaPetProps['tipoConsulta'], string> = {
@@ -19,7 +19,7 @@ const CoresPorTipoConsulta: Record<CardConsultaPetProps['tipoConsulta'], string>
     'vacinação': 'bg-[#AAE1FF]',
 }
 
-export default function CardConsultaPet({ dataHora, nomePet, nomeTutor, nomeVeterinario, tipoConsulta, imagemPet }: CardConsultaPetProps) {
+export default function CardConsultaPet({ dataHora, nomePet, nomeTutor, nomeVeterinario, tipoConsulta, imagemPet}: CardConsultaPetProps) {
     const corConsulta = CoresPorTipoConsulta[tipoConsulta];
     return (
     <Card className={cn("rounded-2xl px-6 py-4 w-full max-w-[494px] flex items-center", corConsulta)}>

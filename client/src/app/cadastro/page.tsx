@@ -54,7 +54,7 @@ export default function TelaCadastro() {
     <>
      <Header />
       <div>
-        <h1 className="text-4xl font-extrabold leading-[110px] w-80 h-14 p-2 ml-[180px] mb-14"
+        <h1 className="text-4xl font-bold leading-[110px] w-80 h-14 p-2 ml-[180px] mb-14"
         style={{ fontFamily: '"Source Code Pro", monospace' }}>Cadastro</h1>
       </div>
 
