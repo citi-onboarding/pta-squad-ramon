@@ -108,7 +108,7 @@ export default function TelaAtendimento() {
   return (
     <div className="h-screen">
       <Header />
-      <div className="flex flex-col pt-[48px] mx-[10%]">
+      <div className="flex flex-col mt-12 mx-[10%]">
         <div className="flex flex-col ">
           <h1 className="text-5xl text-black font-source-code font-bold flex">
             Atendimento
@@ -242,7 +242,7 @@ export default function TelaAtendimento() {
                 value="agendamento"
                 className="justify-center items-center flex flex-col mt-0"
               >
-                <div className="grid grid-cols-3 gap-6 w-full pt-8 max-h-[326px] overflow-y-scroll scrollbar-none">
+                <div className="grid grid-cols-3 gap-6 w-full mt-8 max-h-[326px] overflow-y-scroll scrollbar-none">
                   {cardsFiltrados.map((card, idx) => ( //renderização dos cards por filtro
                     <CardConsultaPet
                       key={idx}

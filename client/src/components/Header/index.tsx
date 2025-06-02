@@ -17,7 +17,7 @@ export default function Header() {
                 </div>
                 <ul className='list-none flex gap-12'>
                     <li>
-                        <Link href="/atendimento" className={`pb-1 ${pathname === '/atendimento' ? 'border-b-2 border-green-500' : ''}`}>
+                        <Link href="/" className={`pb-1 ${pathname === '/' ? 'border-b-2 border-green-500' : ''}`}>
                             Atendimento
                         </Link>
                     </li>
