@@ -21,7 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { BotaoAcao } from "@/components/Buttons";
+import BotaoAcao from "@/components/Buttons";
 import Header from "@/components/Header";
 import CardConsultaPet from "@/components/CardConsultaPet";
 import { CirclePlus } from "lucide-react";
@@ -110,7 +110,7 @@ export default function TelaAtendimento() {
       <Header />
       <div className="flex flex-col mt-12 mx-[10%]">
         <div className="flex flex-col ">
-          <h1 className="text-5xl text-black font-source-code font-bold flex">
+          <h1 className="text-4xl text-black font-source-code font-bold flex" style={{ fontFamily: '"Source Code Pro", monospace' }}>
             Atendimento
           </h1>
           <div className="flex flex-col pt-[32px]">
