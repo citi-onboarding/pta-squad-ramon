@@ -7,7 +7,7 @@ interface BotaoAcaoProps {
   onClick: (() => void) | undefined;
 };
 
-export function BotaoAcao({ texto, cor, icone, onClick }: BotaoAcaoProps) {
+export default function BotaoAcao({ texto, cor, icone, onClick }: BotaoAcaoProps) {
   return (
     
     <button

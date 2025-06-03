@@ -17,7 +17,7 @@ export default function Header() {
                 </div>
                 <ul className='list-none flex gap-12'>
                     <li>
-                        <Link href="/atendimento" className={`pb-1 ${pathname === '/atendimento' ? 'border-b-2 border-green-500' : ''}`}>
+                        <Link href="/" className={`pb-1 ${pathname === '/' ? 'border-b-2 border-green-500' : ''}`}>
                             Atendimento
                         </Link>
                     </li>
@@ -28,7 +28,7 @@ export default function Header() {
                     </li>
                 </ul>
 
-                <p className="text-base flex items-center gap-1 text-[#7D1AD7]">
+                <p className="hidden md:flex text-base items-center gap-1 text-[#7D1AD7]">
                     made with
                         <Image src={ Heart } alt="Heart" width={24} height={24} />
                         and {'</>'} by
