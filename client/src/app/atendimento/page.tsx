@@ -1,5 +1,5 @@
 "use client";
-import { addDays, format } from "date-fns";
+import { addDays, format, set } from "date-fns";
 import { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
@@ -8,7 +8,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import * as React from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar as CalendarIcon } from "lucide-react";
@@ -25,81 +25,39 @@ import BotaoAcao from "@/components/Buttons";
 import Header from "@/components/Header";
 import CardConsultaPet from "@/components/CardConsultaPet";
 import { CirclePlus } from "lucide-react";
-import { useState } from "react";
 import { Cat } from "@/assets";
+import { getAppointments } from "@/services/appointments/getAppointments";
 
 export default function TelaAtendimento() {
+  const [appointments, setAppointments] = useState<any[]>([]); //atualiza as funções
+
+  useEffect(() => {
+    const fetchAppointments = async () => { // dá o get get, e faz essa requisição
+      try {
+        const data = await getAppointments();
+        setAppointments(data); //distribui o appointment para esse dado especifico
+        console.log("fetched appointments", data); 
+      } catch (error) { // tentar realizar uma operação, e vai pro erro se n conseguir
+        setAppointments([]);
+      }
+    };
+    fetchAppointments();
+  }, []);
+      
   const [medicoSelecionado, setMedicoSelecionado] = useState("");
   const [date, setDate] = useState<DateRange>({
     from: addDays(new Date(), 0),
     to: undefined,
   });
 
-  const [cards] = useState([
-    {
-      dataHora: "18/02 13:00", //serve para comparação visual
-      nomePet: "Luna",
-      nomeTutor: "João Alves",
-      nomeVeterinario: "Dr. Carlos Eduardo Silva",
-      tipoConsulta: "primeira consulta",
-      imagemPet: Cat,
-      data: new Date(2024, 2, 18, 13, 0), //serve para filtros
-    },
-    {
-      dataHora: "18/02 13:00",
-      nomePet: "Luna",
-      nomeTutor: "João Alves",
-      nomeVeterinario: "Dra. Fernanda Costa",
-      tipoConsulta: "retorno",
-      imagemPet: Cat,
-      data: new Date(2024, 1, 18, 13, 0),
-    },
-    {
-      dataHora: "18/02 13:00",
-      nomePet: "Luna",
-      nomeTutor: "João Alves",
-      nomeVeterinario: "Dr. Carlos Eduardo Silva",
-      tipoConsulta: "check-up",
-      imagemPet: Cat,
-      data: new Date(2024, 1, 18, 13, 0),
-    },
-    {
-      dataHora: "18/02 13:00",
-      nomePet: "Luna",
-      nomeTutor: "João Alves",
-      nomeVeterinario: "Dr. José Carlos",
-      tipoConsulta: "vacinação",
-      imagemPet: Cat,
-      data: new Date(2024, 1, 18, 13, 0),
-    },
-    {
-      dataHora: "18/02 13:00",
-      nomePet: "Luna",
-      nomeTutor: "João Alves",
-      nomeVeterinario: "Dr. José Carlos",
-      tipoConsulta: "vacinação",
-      imagemPet: Cat,
-      data: new Date(2024, 1, 18, 13, 0),
-    },
-    {
-      dataHora: "18/02 13:00",
-      nomePet: "Luna",
-      nomeTutor: "João Alves",
-      nomeVeterinario: "Dr. José Carlos",
-      tipoConsulta: "primeira consulta",
-      imagemPet: Cat,
-      data: new Date(2024, 1, 18, 13, 0),
-    },
-  ]);
-
-  const cardsFiltrados = cards.filter((card) => {
+  const cardsFiltrados = appointments.filter((appointments) => {
     const filtroMedico = medicoSelecionado
-      ? card.nomeVeterinario === medicoSelecionado
+      ? appointments.doctor === medicoSelecionado
       : true;
 
     const filtroData =
       date.from && date.to
-        ? card.data >= date.from && card.data <= date.to
+        ? appointments.date >= date.from && appointments.date <= date.to
         : true;
 
     return filtroMedico && filtroData;
@@ -243,11 +201,11 @@ export default function TelaAtendimento() {
                 className="justify-center items-center flex flex-col mt-0"
               >
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mt-8 max-h-[326px] overflow-y-scroll scrollbar-none">
-                  {cardsFiltrados.map((card, idx) => ( //renderização dos cards por filtro
+                  {cardsFiltrados.map((appointments) => ( //renderização dos cards por filtro
                     <CardConsultaPet
-                      key={idx}
-                      {...card}
-                      tipoConsulta={card.tipoConsulta as "primeira consulta" | "retorno" | "check-up" | "vacinação"}
+                      key={appointments.id} //chave única para cada card criado / id
+                      {...appointments}
+                      appointmentType={appointments.type as "primeira consulta" | "retorno" | "check-up" | "vacinação"}
                     />
                   ))}
                 </div>
@@ -258,11 +216,11 @@ export default function TelaAtendimento() {
                 className="justify-center items-center flex flex-col mt-0"
               >
                 <div className="grid grid-cols-3 gap-6 w-full pt-8 max-h-[326px] overflow-y-scroll scrollbar-none">
-                  {cardsFiltrados.map((card, idx) => (
+                  {cardsFiltrados.map((appointments) => (
                     <CardConsultaPet
-                      key={idx}
-                      {...card}
-                      tipoConsulta={card.tipoConsulta as "primeira consulta" | "retorno" | "check-up" | "vacinação"}
+                      key={appointments.id}
+                      {...appointments}
+                      appointmentType={appointments.type as "primeira consulta" | "retorno" | "check-up" | "vacinação"}
                     />
                   ))}
                 </div>
