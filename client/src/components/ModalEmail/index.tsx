@@ -80,10 +80,6 @@ export default function ModalConsulta({ onClose }: ModalProps) {
         <div className="flex justify-center mb-8">
           <Image src={LogoCITipet} alt="Logo" width={189} height={74} />
         </div>
-        <h3 className="text-center text-[16px] font-bold mb-9">
-          O pet já está cadastrado no sistema!{" "}
-          <span className="font-medium">Preencha os dados da </span>consulta{" "}
-        </h3>
 
         <form
           className="grid grid-cols-1 md:grid-cols-2 gap-4"
@@ -91,7 +87,7 @@ export default function ModalConsulta({ onClose }: ModalProps) {
         >
           <div className="flex flex-col">
             <Input
-              id="descricao"
+              id="E-mail"
               {...register("emailUser")}
               type="text"
               placeholder="Digite aqui..."
@@ -106,7 +102,7 @@ export default function ModalConsulta({ onClose }: ModalProps) {
 
           <div className="mt-5 col-span-2  flex justify-center">
             <Button
-              texto="Finalizar Cadastro"
+              texto="Enviar"
               cor="bg-[#50E678]"
               onClick={handleSubmit(onSubmit)}
             />
