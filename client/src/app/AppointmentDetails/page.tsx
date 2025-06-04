@@ -17,7 +17,7 @@ const typeColors: { [key: string]: string } = {
 const mockedAppointment: {[key:string]: any} = {
     doctor: "Dr. José Carlos",
     appointmentType: "Check-up",
-    description : "Três Anéis para os Reis-Elfos sob este céu; Sete para os Senhores-Anões em seus rochosos corredores; Nove para os Homens Mortais fadados a morrer; Um para o Senhor do Escuro em seu Escuro Trono, Na terra de Mordor, onde as Sombras se deitam. Um Anel para a todos governar, Um Anel para encontrá-los, Um Anel para a todos trazer e na Escuridão aprisioná-los, Na terra de Mordor, onde as Sombras se deitam.",
+    description : "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
     patient:"Luna",
     tutorName:"Lucas Gomes",
     age:"5 anos",
@@ -80,7 +80,7 @@ export default function AppointmentsDetails() {
           </div>
           <div className=' mb-[10%]'>
           <div className="border border-gray-400 rounded-[16px] font-bold flex flex-col items-center text-center  p-4">
-            <div className="border border-gray-400 mb-[5%] ">
+            <div className=" mb-[5%] ">
               <h1 className="mb[10%]">Deseja realizar outra consulta?</h1>
             </div>
             <Button
@@ -96,7 +96,7 @@ export default function AppointmentsDetails() {
 
         {/* righht side column (History of the Appointments) */}
         <div className="w-1/2 flex flex-col content-start">
-          <div className="flex flex-col transform scale-75 border border-gray-800 jus">
+          <div className="flex flex-col transform scale-75  jus">
             <h1 className="text-lg font-bold mb-5 text-[24px] justify-start">
               Histórico de consultas
             </h1>
