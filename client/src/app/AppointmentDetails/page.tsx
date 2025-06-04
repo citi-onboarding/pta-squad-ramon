@@ -3,16 +3,42 @@ import { BadgeCheck } from 'lucide-react';
 import { ChevronLeft } from "lucide-react";
 import Header from "@/components/Header";
 import { CardHistory } from "@/components/CardHistory";
-import { Cat } from "@/assets";
+import { Cat, Cachorro, Girafa, Ovelha, Porco, Cavalo } from "@/assets";
 import Image from "next/image";
-import { BotaoAcao } from "@/components/Buttons";
 import { Button } from "@/components/ui/button";
+
+const typeColors: { [key: string]: string } = {
+    "Vacinação": "bg-[#AAE1FF]",
+    "Retorno": "bg-[#F29C74]",
+    "Primeira Consulta": "bg-[#BFB5FF]",
+    "Check-up": "bg-[#9CFF95]",
+  };
+
+const mockedAppointment: {[key:string]: any} = {
+    doctor: "Dr. José Carlos",
+    appointmentType: "Check-up",
+    description : "Três Anéis para os Reis-Elfos sob este céu; Sete para os Senhores-Anões em seus rochosos corredores; Nove para os Homens Mortais fadados a morrer; Um para o Senhor do Escuro em seu Escuro Trono, Na terra de Mordor, onde as Sombras se deitam. Um Anel para a todos governar, Um Anel para encontrá-los, Um Anel para a todos trazer e na Escuridão aprisioná-los, Na terra de Mordor, onde as Sombras se deitam.",
+    patient:"Luna",
+    tutorName:"Lucas Gomes",
+    age:"5 anos",
+    species:"Gato",
+
+}
+  const animalImages: { [key: string]: any } = {
+    "Gato": Cat,
+    "Cachorro": Cachorro,
+    "Porco": Porco,
+    "Cavalo": Cavalo,
+    "Ovelha": Ovelha,
+    "Vaca": Girafa
+  };
+
 
 export default function AppointmentsDetails() {
   return (
-    <div className="h-screen border border-green-400">
+    <div className="h-screen">
       <Header />
-      <div className="border border-pink-400">
+      <div>
         <div className="flex items-center mx-[10%] my-[2%] gap-2">
           <ChevronLeft className=" w-[32px] h-[32px] text-black" />
           <h1
@@ -23,41 +49,37 @@ export default function AppointmentsDetails() {
           </h1>
         </div>
       </div>
-      <div className="flex flex-row mt-12 mx-[10%] gap-8 border border-purple-400">
+      <div className="flex flex-row mt-12 mx-[10%] gap-8">
         {/* left side column (data) */}
-        <div className="w-1/2 flex flex-col border border-red-400">
+        <div className="w-1/2 flex flex-col ">
           <h1 className="font-bold">Paciente</h1>
-          <div className="flex flex-row border border-blue-400">
-            <div className="w-2/3  border border-yellow-400 ">
-              <Image src={Cat} width={295} height={295} alt="Pet" />
+          <div className="flex flex-row">
+            <div className="w-2/3  ">
+              <Image src={animalImages[mockedAppointment.species]} width={295} height={295} alt="Pet" />
             </div>
-            <div className="w-1/3 flex flex-col items-start text-left h-full border-orange-400 flex justify-between">
-              <div className=" border border-amber-700 mt-[35%]">
-                <p className="font-bold">Luna</p>
-                <p>5 anos</p>
+            <div className="w-1/3 flex-col items-start text-left h-full flex justify-between">
+              <div className=" mt-[35%]">
+                <p className="font-bold">{mockedAppointment.patient}</p>
+                <p>{mockedAppointment.age}</p>
               </div>
-              <div className="border border-red-600">
-                <p>Lucas Gomes</p>
-                <p>Dr. José Carlos</p>
+              <div>
+                <p>{mockedAppointment.tutorName}</p> {/*Inserts tutorName and doctor variables */}
+                <p>{mockedAppointment.doctor}</p>
               </div>
             </div>
           </div>
-          <div className="mb-[5%] border-yellow-400">
+          <div className="mb-[5%] mt-[3%] border-yellow-400">
             <h1 className="font-bold">Descrição do Problema:</h1>
             <p>
-              Três Anéis para os Reis-Elfos sob este céu; Sete para os
-              Senhores-Anões em seus rochosos corredores; Nove para os Homens
-              Mortais fadados a morrer; Um para o Senhor do Escuro em seu Escuro
-              Trono, Na terra de Mordor, onde as Sombras se deitam. Um Anel para
-              a todos governar, Um Anel para encontrá-los, Um Anel para a todos
-              trazer e na Escuridão aprisioná-los, Na terra de Mordor, onde as
-              Sombras se deitam.
+              {mockedAppointment.description}
             </p>
           </div>
-          <div className="mb-[5%] border-yellow-400">
+          <div className="mb-[5%] border-green-400 flex flex-row">
             <p className="font-bold">Tipo de consulta:</p>
+            <p className={`ml-[3%] pl-[6px] pr-[6px] border rounded-[4px] ${typeColors[mockedAppointment.appointmentType]}`}>{mockedAppointment.appointmentType}</p>
           </div>
-          <div className="border border-gray-400 rounded-[16px] font-bold flex flex-col items-center text-center p-4">
+          <div className=' mb-[10%]'>
+          <div className="border border-gray-400 rounded-[16px] font-bold flex flex-col items-center text-center  p-4">
             <div className="border border-gray-400 mb-[5%] ">
               <h1 className="mb[10%]">Deseja realizar outra consulta?</h1>
             </div>
@@ -69,12 +91,13 @@ export default function AppointmentsDetails() {
               Agendamento
             </Button>
           </div>
+          </div>
         </div>
 
         {/* righht side column (History of the Appointments) */}
         <div className="w-1/2 flex flex-col content-start">
-          <div className="flex flex-col justify-center transform scale-75 border border-gray-800">
-            <h1 className="text-lg font-bold mb-5 text-[24px]">
+          <div className="flex flex-col transform scale-75 border border-gray-800 jus">
+            <h1 className="text-lg font-bold mb-5 text-[24px] justify-start">
               Histórico de consultas
             </h1>
             <div className="border border-gray-400 p-4 rounded-[16px] overflow-y-scroll max-h-[500px] space-y-4">
