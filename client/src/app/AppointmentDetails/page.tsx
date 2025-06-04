@@ -68,7 +68,7 @@ export default function AppointmentsDetails() {
               </div>
             </div>
           </div>
-          <div className="mb-[5%] mt-[3%] border-yellow-400">
+          <div className="mb-[5%] mt-[3%]">
             <h1 className="font-bold">Descrição do Problema:</h1>
             <p>
               {mockedAppointment.description}
