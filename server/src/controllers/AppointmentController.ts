@@ -48,7 +48,7 @@ class AppointmentController implements Crud {
     return response.status(httpStatus).send({ messageFromDelete });
   };
 
-  findById = async (request: Request, response: Response) => {
+findById = async (request: Request, response: Response) => {
     try {
       const { id } = request.params;
       const appointmentId = parseInt(id);
@@ -57,23 +57,34 @@ class AppointmentController implements Crud {
         return response.status(400).send({ message: "ID da consulta inválido." });
       }
 
-      const appointment = await prisma.appointment.findUnique({
+      const appointmentDetails = await prisma.appointment.findUnique({
         where: { id: appointmentId },
         include: {
-          patient: true,
-        },
+          patient: { // Inclui o paciente
+            include: {
+              appointments: { // E AQUI, inclui TODOS os appointments desse paciente
+                orderBy: [ // Opcional: para ordenar o histórico
+                  { date: 'desc' },
+                  { time: 'desc' }
+                ],
+              }
+            }
+          }
+        }
       });
 
-      if (!appointment) {
+      if (!appointmentDetails) {
         return response.status(404).send({ message: "Consulta não encontrada." });
       }
 
-      return response.status(200).send(appointment);
+      // Agora, appointmentDetails.patient.appointments conterá o histórico
+      return response.status(200).send(appointmentDetails);
     } catch (error) {
-      console.error("Erro ao buscar consulta por ID no AppointmentController:", error);
+      console.error("Erro ao buscar consulta por ID com histórico no AppointmentController:", error);
       return response.status(500).send({ message: "Erro interno do servidor ao processar a solicitação." });
     }
   };
+
   
   update = async (request: Request, response: Response) => {
     const { id } = request.params;
