@@ -4,18 +4,18 @@ import { cn } from "@/lib/utils"
 import Image from 'next/image'
 import Link from 'next/link'
 import { Card } from "@/components/ui/card"
-import { Gato, Cachorro, Girafa, Ovelha, Porco, Cavalo } from "@/assets"
+import { Gato, Cachorro, vaca, Ovelha, Porco, Cavalo } from "@/assets"
 import { getAllAppointments } from "@/services/CardPet/index"
 import { useEffect, useState } from "react"
 
 function getImagemPet(especie: string) {
-    switch (especie.toLowerCase()) {
+    switch (especie) {
         case 'gato':
             return Gato;
         case 'cachorro':
             return Cachorro;
-        case 'girafa':
-            return Girafa;
+        case 'vaca':
+            return vaca;
         case 'cavalo':
             return Cavalo;
         case 'porco':
