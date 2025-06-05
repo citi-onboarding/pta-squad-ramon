@@ -1,5 +1,5 @@
 "use client";
-import { addDays, format, set } from "date-fns";
+import { addDays, format } from "date-fns";
 import { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
@@ -25,39 +25,38 @@ import BotaoAcao from "@/components/Buttons";
 import Header from "@/components/Header";
 import CardConsultaPet from "@/components/CardConsultaPet";
 import { CirclePlus } from "lucide-react";
-import { Cat } from "@/assets";
 import { getAppointments } from "@/services/appointments/getAppointments";
 
 export default function TelaAtendimento() {
-  const [appointments, setAppointments] = useState<any[]>([]); //atualiza as funções
+  const [appointments, setAppointments] = useState<any[]>([]);
 
   useEffect(() => {
-    const fetchAppointments = async () => { // dá o get get, e faz essa requisição
+    const fetchAppointments = async () => {
       try {
         const data = await getAppointments();
-        setAppointments(data); //distribui o appointment para esse dado especifico
-        console.log("fetched appointments", data); 
-      } catch (error) { // tentar realizar uma operação, e vai pro erro se n conseguir
+        setAppointments(data);
+        console.log("fetched appointments", data);
+      } catch {
         setAppointments([]);
       }
     };
     fetchAppointments();
   }, []);
-      
+
   const [medicoSelecionado, setMedicoSelecionado] = useState("");
   const [date, setDate] = useState<DateRange>({
     from: addDays(new Date(), 0),
     to: undefined,
   });
 
-  const cardsFiltrados = appointments.filter((appointments) => {
+  const cardsFiltrados = appointments.filter((appointment) => {
     const filtroMedico = medicoSelecionado
-      ? appointments.doctor === medicoSelecionado
+      ? appointment.doctor === medicoSelecionado
       : true;
 
     const filtroData =
       date.from && date.to
-        ? appointments.date >= date.from && appointments.date <= date.to
+        ? new Date(appointment.date) >= date.from && new Date(appointment.date) <= date.to
         : true;
 
     return filtroMedico && filtroData;
@@ -68,7 +67,10 @@ export default function TelaAtendimento() {
       <Header />
       <div className="flex flex-col mt-12 mx-[10%]">
         <div className="flex flex-col ">
-          <h1 className="text-4xl text-black font-source-code font-bold flex" style={{ fontFamily: '"Source Code Pro", monospace' }}>
+          <h1
+            className="text-4xl text-black font-source-code font-bold flex"
+            style={{ fontFamily: '"Source Code Pro", monospace' }}
+          >
             Atendimento
           </h1>
           <div className="flex flex-col pt-[32px]">
@@ -88,16 +90,12 @@ export default function TelaAtendimento() {
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
                     <DropdownMenuItem
-                      onClick={() =>
-                        setMedicoSelecionado("Dr. Carlos Eduardo Silva")
-                      }
+                      onClick={() => setMedicoSelecionado("Dr. Carlos Eduardo Silva")}
                     >
                       Dr. Carlos Eduardo Silva
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() =>
-                        setMedicoSelecionado("Dra. Ana Beatriz Oliveira")
-                      }
+                      onClick={() => setMedicoSelecionado("Dra. Ana Beatriz Oliveira")}
                     >
                       Dra. Ana Beatriz Oliveira
                     </DropdownMenuItem>
@@ -107,16 +105,12 @@ export default function TelaAtendimento() {
                       Dr. Roberto Lima
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() =>
-                        setMedicoSelecionado("Dra. Fernanda Costa")
-                      }
+                      onClick={() => setMedicoSelecionado("Dra. Fernanda Costa")}
                     >
                       Dra. Fernanda Costa
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() =>
-                        setMedicoSelecionado("Dr. Miguel Santos Pereira")
-                      }
+                      onClick={() => setMedicoSelecionado("Dr. Miguel Santos Pereira")}
                     >
                       Dr. Miguel Santos Pereira
                     </DropdownMenuItem>
@@ -184,7 +178,7 @@ export default function TelaAtendimento() {
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         initialFocus
-                        mode="range" //de - até
+                        mode="range"
                         defaultMonth={date?.from}
                         selected={date}
                         onSelect={(range) => {
@@ -201,11 +195,10 @@ export default function TelaAtendimento() {
                 className="justify-center items-center flex flex-col mt-0"
               >
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mt-8 max-h-[326px] overflow-y-scroll scrollbar-none">
-                  {cardsFiltrados.map((appointments) => ( //renderização dos cards por filtro
+                  {cardsFiltrados.map((appointment) => (
                     <CardConsultaPet
-                      key={appointments.id} //chave única para cada card criado / id
-                      {...appointments}
-                      appointmentType={appointments.type as "primeira consulta" | "retorno" | "check-up" | "vacinação"}
+                      key={appointment.id}
+                      appointment={appointment}
                     />
                   ))}
                 </div>
@@ -216,11 +209,10 @@ export default function TelaAtendimento() {
                 className="justify-center items-center flex flex-col mt-0"
               >
                 <div className="grid grid-cols-3 gap-6 w-full pt-8 max-h-[326px] overflow-y-scroll scrollbar-none">
-                  {cardsFiltrados.map((appointments) => (
+                  {cardsFiltrados.map((appointment) => (
                     <CardConsultaPet
-                      key={appointments.id}
-                      {...appointments}
-                      appointmentType={appointments.type as "primeira consulta" | "retorno" | "check-up" | "vacinação"}
+                      key={appointment.id}
+                      appointment={appointment}
                     />
                   ))}
                 </div>
