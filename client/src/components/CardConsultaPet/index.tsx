@@ -5,8 +5,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Card } from "@/components/ui/card"
 import { Gato, Cachorro, vaca, Ovelha, Porco, Cavalo } from "@/assets"
-import { getAllAppointments } from "@/services/CardPet/index"
-import { useEffect, useState } from "react"
 
 function getImagemPet(especie: string) {
     switch (especie) {
