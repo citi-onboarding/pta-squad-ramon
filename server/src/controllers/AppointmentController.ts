@@ -35,10 +35,38 @@ class AppointmentController implements Crud {
 
   get = async (request: Request, response: Response) => {
     try {
-      const { httpStatus, values } = await this.citi.getAll();
-      return response.status(httpStatus).send(values);
+      const appointmentsComPacientes = await prisma.appointment.findMany({
+        include: {
+          patient: {
+            select: {
+              name: true,
+              tutorName: true,
+              species: true,
+            },
+          },
+        },
+        orderBy: {
+          date: "desc",
+        },
+      });
+
+      const dadosFormatados = appointmentsComPacientes.map((app) => ({
+        id: app.id,
+        date: app.date,
+        appointmentType: app.appointmentType,
+        doctor: app.doctor,
+        description: app.description,
+        name: app.patient.name,
+        tutorName: app.patient.tutorName,
+        species: app.patient.species,
+      }));
+
+      return response.status(200).send(dadosFormatados);
     } catch (error) {
-      return response.status(500).send({ message: "Internal server error" });
+      console.error("Erro ao buscar agendamentos com pacientes:", error);
+      return response
+        .status(500)
+        .send({ message: "Erro interno do servidor." });
     }
   };
 
@@ -48,44 +76,57 @@ class AppointmentController implements Crud {
     return response.status(httpStatus).send({ messageFromDelete });
   };
 
-findById = async (request: Request, response: Response) => {
+  findById = async (request: Request, response: Response) => {
     try {
       const { id } = request.params;
       const appointmentId = parseInt(id);
 
       if (isNaN(appointmentId)) {
-        return response.status(400).send({ message: "ID da consulta inválido." });
+        return response
+          .status(400)
+          .send({ message: "ID da consulta inválido." });
       }
 
       const appointmentDetails = await prisma.appointment.findUnique({
         where: { id: appointmentId },
         include: {
-          patient: { // Inclui o paciente
+          patient: {
+            // Inclui o paciente
             include: {
-              appointments: { // E AQUI, inclui TODOS os appointments desse paciente
-                orderBy: [ // Opcional: para ordenar o histórico
-                  { date: 'desc' },
-                  { time: 'desc' }
+              appointments: {
+                // E AQUI, inclui TODOS os appointments desse paciente
+                orderBy: [
+                  // Opcional: para ordenar o histórico
+                  { date: "desc" },
+                  { time: "desc" },
                 ],
-              }
-            }
-          }
-        }
+              },
+            },
+          },
+        },
       });
 
       if (!appointmentDetails) {
-        return response.status(404).send({ message: "Consulta não encontrada." });
+        return response
+          .status(404)
+          .send({ message: "Consulta não encontrada." });
       }
 
       // Agora, appointmentDetails.patient.appointments conterá o histórico
       return response.status(200).send(appointmentDetails);
     } catch (error) {
-      console.error("Erro ao buscar consulta por ID com histórico no AppointmentController:", error);
-      return response.status(500).send({ message: "Erro interno do servidor ao processar a solicitação." });
+      console.error(
+        "Erro ao buscar consulta por ID com histórico no AppointmentController:",
+        error
+      );
+      return response
+        .status(500)
+        .send({
+          message: "Erro interno do servidor ao processar a solicitação.",
+        });
     }
   };
 
-  
   update = async (request: Request, response: Response) => {
     const { id } = request.params;
     const { appointmentType, doctor, date, time, description, patientId } =
