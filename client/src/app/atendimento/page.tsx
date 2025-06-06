@@ -8,7 +8,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar as CalendarIcon } from "lucide-react";
@@ -35,7 +35,6 @@ export default function TelaAtendimento() {
       try {
         const data = await getAppointments();
         setAppointments(data);
-        console.log("fetched appointments", data);
       } catch {
         setAppointments([]);
       }
@@ -44,23 +43,47 @@ export default function TelaAtendimento() {
   }, []);
 
   const [medicoSelecionado, setMedicoSelecionado] = useState("");
-  const [date, setDate] = useState<DateRange>({
-    from: addDays(new Date(), 0),
-    to: undefined,
-  });
+  const [date, setDate] = useState<DateRange | undefined>(undefined);
 
-  const cardsFiltrados = appointments.filter((appointment) => {
-    const filtroMedico = medicoSelecionado
-      ? appointment.doctor === medicoSelecionado
-      : true;
+  const agora = new Date();
 
-    const filtroData =
-      date.from && date.to
-        ? new Date(appointment.date) >= date.from && new Date(appointment.date) <= date.to
+  const agendamentosFuturos = useMemo(() => {
+    return appointments.filter((appointment) => {
+      const appointmentDate = new Date(appointment.date);
+      if (appointmentDate < agora) return false;
+
+      const filtroMedico = medicoSelecionado
+        ? appointment.doctor === medicoSelecionado
         : true;
 
-    return filtroMedico && filtroData;
-  });
+      const filtroData =
+        date?.from && date?.to
+          ? appointmentDate >= date.from && appointmentDate <= date.to
+          : true;
+
+      return filtroMedico && filtroData;
+    });
+  }, [appointments, medicoSelecionado, date]);
+
+  const historicoConsultas = useMemo(() => {
+    return appointments
+      .filter((appointment) => {
+        const appointmentDate = new Date(appointment.date);
+        if (appointmentDate >= agora) return false;
+
+        const filtroMedico = medicoSelecionado
+          ? appointment.doctor === medicoSelecionado
+          : true;
+
+        const filtroData =
+          date?.from && date?.to
+            ? appointmentDate >= date.from && appointmentDate <= date.to
+            : true;
+
+        return filtroMedico && filtroData;
+      })
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [appointments, medicoSelecionado, date]);
 
   return (
     <div className="h-screen">
@@ -90,12 +113,16 @@ export default function TelaAtendimento() {
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
                     <DropdownMenuItem
-                      onClick={() => setMedicoSelecionado("Dr. Carlos Eduardo Silva")}
+                      onClick={() =>
+                        setMedicoSelecionado("Dr. Carlos Eduardo Silva")
+                      }
                     >
                       Dr. Carlos Eduardo Silva
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() => setMedicoSelecionado("Dra. Ana Beatriz Oliveira")}
+                      onClick={() =>
+                        setMedicoSelecionado("Dra. Ana Beatriz Oliveira")
+                      }
                     >
                       Dra. Ana Beatriz Oliveira
                     </DropdownMenuItem>
@@ -105,12 +132,16 @@ export default function TelaAtendimento() {
                       Dr. Roberto Lima
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() => setMedicoSelecionado("Dra. Fernanda Costa")}
+                      onClick={() =>
+                        setMedicoSelecionado("Dra. Fernanda Costa")
+                      }
                     >
                       Dra. Fernanda Costa
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() => setMedicoSelecionado("Dr. Miguel Santos Pereira")}
+                      onClick={() =>
+                        setMedicoSelecionado("Dr. Miguel Santos Pereira")
+                      }
                     >
                       Dr. Miguel Santos Pereira
                     </DropdownMenuItem>
@@ -156,7 +187,7 @@ export default function TelaAtendimento() {
                         id="date"
                         variant={"outline"}
                         className={cn(
-                          "w-[300px]  justify-start text-left font-normal h-[58px]",
+                          "w-[300px]  justify-start text-left font-normal h-[58px]",
                           !date && "text-muted-foreground"
                         )}
                       >
@@ -181,9 +212,7 @@ export default function TelaAtendimento() {
                         mode="range"
                         defaultMonth={date?.from}
                         selected={date}
-                        onSelect={(range) => {
-                          if (range) setDate(range);
-                        }}
+                        onSelect={setDate}
                         numberOfMonths={2}
                       />
                     </PopoverContent>
@@ -195,8 +224,7 @@ export default function TelaAtendimento() {
                 className="justify-center items-center flex flex-col mt-0"
               >
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mt-8 max-h-[326px] overflow-y-scroll scrollbar-none">
-                  {cardsFiltrados.map((appointment) => (
-                    console.log(appointment),
+                  {agendamentosFuturos.map((appointment) => (
                     <CardConsultaPet
                       key={appointment.id}
                       {...appointment}
@@ -209,9 +237,8 @@ export default function TelaAtendimento() {
                 value="historico"
                 className="justify-center items-center flex flex-col mt-0"
               >
-                <div className="grid grid-cols-3 gap-6 w-full pt-8 max-h-[326px] overflow-y-scroll scrollbar-none">
-                  {cardsFiltrados.map((appointment) => (
-                    console.log(appointment),
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full pt-8 max-h-[326px] overflow-y-scroll scrollbar-none">
+                  {historicoConsultas.map((appointment) => (
                     <CardConsultaPet
                       key={appointment.id}
                       {...appointment}
