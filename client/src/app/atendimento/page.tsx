@@ -8,7 +8,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import * as React from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar as CalendarIcon } from "lucide-react";
@@ -25,92 +25,75 @@ import BotaoAcao from "@/components/Buttons";
 import Header from "@/components/Header";
 import CardConsultaPet from "@/components/CardConsultaPet";
 import { CirclePlus } from "lucide-react";
-import { useState } from "react";
-import { Cat } from "@/assets";
+import { getAppointments } from "@/services/appointments/getAppointments";
 
 export default function TelaAtendimento() {
+  const [appointments, setAppointments] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        const data = await getAppointments();
+        setAppointments(data);
+      } catch {
+        setAppointments([]);
+      }
+    };
+    fetchAppointments();
+  }, []);
+
   const [medicoSelecionado, setMedicoSelecionado] = useState("");
-  const [date, setDate] = useState<DateRange>({
-    from: addDays(new Date(), 0),
-    to: undefined,
-  });
+  const [date, setDate] = useState<DateRange | undefined>(undefined);
 
-  const [cards] = useState([
-    {
-      dataHora: "18/02 13:00", //serve para comparação visual
-      nomePet: "Luna",
-      nomeTutor: "João Alves",
-      nomeVeterinario: "Dr. Carlos Eduardo Silva",
-      tipoConsulta: "primeira consulta",
-      imagemPet: Cat,
-      data: new Date(2024, 2, 18, 13, 0), //serve para filtros
-    },
-    {
-      dataHora: "18/02 13:00",
-      nomePet: "Luna",
-      nomeTutor: "João Alves",
-      nomeVeterinario: "Dra. Fernanda Costa",
-      tipoConsulta: "retorno",
-      imagemPet: Cat,
-      data: new Date(2024, 1, 18, 13, 0),
-    },
-    {
-      dataHora: "18/02 13:00",
-      nomePet: "Luna",
-      nomeTutor: "João Alves",
-      nomeVeterinario: "Dr. Carlos Eduardo Silva",
-      tipoConsulta: "check-up",
-      imagemPet: Cat,
-      data: new Date(2024, 1, 18, 13, 0),
-    },
-    {
-      dataHora: "18/02 13:00",
-      nomePet: "Luna",
-      nomeTutor: "João Alves",
-      nomeVeterinario: "Dr. José Carlos",
-      tipoConsulta: "vacinação",
-      imagemPet: Cat,
-      data: new Date(2024, 1, 18, 13, 0),
-    },
-    {
-      dataHora: "18/02 13:00",
-      nomePet: "Luna",
-      nomeTutor: "João Alves",
-      nomeVeterinario: "Dr. José Carlos",
-      tipoConsulta: "vacinação",
-      imagemPet: Cat,
-      data: new Date(2024, 1, 18, 13, 0),
-    },
-    {
-      dataHora: "18/02 13:00",
-      nomePet: "Luna",
-      nomeTutor: "João Alves",
-      nomeVeterinario: "Dr. José Carlos",
-      tipoConsulta: "primeira consulta",
-      imagemPet: Cat,
-      data: new Date(2024, 1, 18, 13, 0),
-    },
-  ]);
+  const agora = new Date();
 
-  const cardsFiltrados = cards.filter((card) => {
-    const filtroMedico = medicoSelecionado
-      ? card.nomeVeterinario === medicoSelecionado
-      : true;
+  const agendamentosFuturos = useMemo(() => {
+    return appointments.filter((appointment) => {
+      const appointmentDate = new Date(appointment.date);
+      if (appointmentDate < agora) return false;
 
-    const filtroData =
-      date.from && date.to
-        ? card.data >= date.from && card.data <= date.to
+      const filtroMedico = medicoSelecionado
+        ? appointment.doctor === medicoSelecionado
         : true;
 
-    return filtroMedico && filtroData;
-  });
+      const filtroData =
+        date?.from && date?.to
+          ? appointmentDate >= date.from && appointmentDate <= date.to
+          : true;
+
+      return filtroMedico && filtroData;
+    });
+  }, [appointments, medicoSelecionado, date]);
+
+  const historicoConsultas = useMemo(() => {
+    return appointments
+      .filter((appointment) => {
+        const appointmentDate = new Date(appointment.date);
+        if (appointmentDate >= agora) return false;
+
+        const filtroMedico = medicoSelecionado
+          ? appointment.doctor === medicoSelecionado
+          : true;
+
+        const filtroData =
+          date?.from && date?.to
+            ? appointmentDate >= date.from && appointmentDate <= date.to
+            : true;
+
+        return filtroMedico && filtroData;
+      })
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [appointments, medicoSelecionado, date]);
 
   return (
     <div className="h-screen">
       <Header />
       <div className="flex flex-col mt-12 mx-[10%]">
         <div className="flex flex-col ">
-          <h1 className="text-4xl text-black font-source-code font-bold flex" style={{ fontFamily: '"Source Code Pro", monospace' }}>
+          <h1
+            className="text-4xl text-black font-source-code font-bold flex"
+            style={{ fontFamily: '"Source Code Pro", monospace' }}
+          >
             Atendimento
           </h1>
           <div className="flex flex-col pt-[32px]">
@@ -204,7 +187,7 @@ export default function TelaAtendimento() {
                         id="date"
                         variant={"outline"}
                         className={cn(
-                          "w-[300px]  justify-start text-left font-normal h-[58px]",
+                          "w-[300px]  justify-start text-left font-normal h-[58px]",
                           !date && "text-muted-foreground"
                         )}
                       >
@@ -226,12 +209,10 @@ export default function TelaAtendimento() {
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         initialFocus
-                        mode="range" //de - até
+                        mode="range"
                         defaultMonth={date?.from}
                         selected={date}
-                        onSelect={(range) => {
-                          if (range) setDate(range);
-                        }}
+                        onSelect={setDate}
                         numberOfMonths={2}
                       />
                     </PopoverContent>
@@ -243,11 +224,10 @@ export default function TelaAtendimento() {
                 className="justify-center items-center flex flex-col mt-0"
               >
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mt-8 max-h-[326px] overflow-y-scroll scrollbar-none">
-                  {cardsFiltrados.map((card, idx) => ( //renderização dos cards por filtro
+                  {agendamentosFuturos.map((appointment) => (
                     <CardConsultaPet
-                      key={idx}
-                      {...card}
-                      tipoConsulta={card.tipoConsulta as "primeira consulta" | "retorno" | "check-up" | "vacinação"}
+                      key={appointment.id}
+                      {...appointment}
                     />
                   ))}
                 </div>
@@ -257,12 +237,11 @@ export default function TelaAtendimento() {
                 value="historico"
                 className="justify-center items-center flex flex-col mt-0"
               >
-                <div className="grid grid-cols-3 gap-6 w-full pt-8 max-h-[326px] overflow-y-scroll scrollbar-none">
-                  {cardsFiltrados.map((card, idx) => (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full pt-8 max-h-[326px] overflow-y-scroll scrollbar-none">
+                  {historicoConsultas.map((appointment) => (
                     <CardConsultaPet
-                      key={idx}
-                      {...card}
-                      tipoConsulta={card.tipoConsulta as "primeira consulta" | "retorno" | "check-up" | "vacinação"}
+                      key={appointment.id}
+                      {...appointment}
                     />
                   ))}
                 </div>
