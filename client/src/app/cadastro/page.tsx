@@ -4,7 +4,7 @@ import Button from "@/components/Buttons";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
-import { Ovelha, Cachorro, Gato, Girafa, Porco, Cavalo } from "@/assets";
+import { Ovelha, Cachorro, Gato, vaca, Porco, Cavalo } from "@/assets";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -13,12 +13,12 @@ import { useState } from "react";
 import api from "@/services/api";
 
 const formSchema = z.object({
-  nomemPaciente: z
+  name: z
     .string()
     .min(1, { message: "Nome do paciente é obrigatório" }),
-  nomeTutor: z.string().min(1, { message: "Nome do tutor é obrigatório" }),
-  especie: z.string().min(1, { message: "Selecione uma espécie" }),
-  idadePaciente: z
+  tutorName: z.string().min(1, { message: "Nome do tutor é obrigatório" }),
+  species: z.string().min(1, { message: "Selecione uma espécie" }),
+  age: z
     .string()
     .min(1, { message: "Idade do paciente é obrigatória" })
     .regex(/^\d+$/, { message: "Idade deve ser um número" }),
@@ -32,12 +32,12 @@ export default function TelaCadastro() {
   const [createdPatientData, setCreatedPatientData] = useState<{ id: string; name?: string; [key: string]: any } | null>(null);
 
   const animais = [
-    { name: "Ovelha", src: Ovelha, alt: "Ovelha" },
-    { name: "Cachorro", src: Cachorro, alt: "Cachorro" },
-    { name: "Gato", src: Gato, alt: "Gato" },
-    { name: "Girafa", src: Girafa, alt: "Girafa" },
-    { name: "Porco", src: Porco, alt: "Porco" },
-    { name: "Cavalo", src: Cavalo, alt: "Cavalo" },
+    { name: "ovelha", src: Ovelha, alt: "Ovelha" },
+    { name: "cachorro", src: Cachorro, alt: "Cachorro" },
+    { name: "gato", src: Gato, alt: "Gato" },
+    { name: "vaca", src: vaca, alt: "vaca" },
+    { name: "porco", src: Porco, alt: "Porco" },
+    { name: "cavalo", src: Cavalo, alt: "Cavalo" },
   ];
 
   const {
@@ -51,46 +51,34 @@ export default function TelaCadastro() {
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      nomemPaciente: "",
-      nomeTutor: "",
-      especie: "",
-      idadePaciente: "",
+      name: "",
+      tutorName: "",
+      species: "",
+      age: "",
     },
   });
 
-  const especie = watch("especie");
+  const species = watch("species");
 
   const onSubmitPatient = async (data: FormData) => {
     setIsSubmittingPatient(true);
     setCreatedPatientData(null);
 
     const patientPayload = {
-      name: data.nomemPaciente,
-      tutorName: data.nomeTutor,
-      species: data.especie,
-      age: data.idadePaciente,
+      name: data.name,
+      tutorName: data.tutorName,
+      species: data.species,
+      age: Number(data.age),
     };
 
+    console.log("Paciente cadastrado com sucesso:", patientPayload);
     try {
-      const response = await api.post("/api/patients", patientPayload);
-      
-      if (!response.data || !response.data.id) {
-        console.error("Resposta da API inválida. ID do paciente não encontrado.", response.data);
-        throw new Error("ID do paciente não retornado pela API.");
-      }
+      const response = await api.post("/patients", patientPayload);
 
       setCreatedPatientData(response.data);
       setIsModalOpen(true);
-      
-    } catch (error: any) {
-      console.error("Erro ao criar paciente:", error);
-      let errorMessage = "Falha ao cadastrar o paciente.";
-      if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (error.response.data.message) {
-        errorMessage = error.response.data.error;
-      }
-      alert(`Erro: ${errorMessage}`);
+    } catch {
+      alert("Falha ao cadastrar o paciente.");
     } finally {
       setIsSubmittingPatient(false);
     }
@@ -119,32 +107,32 @@ export default function TelaCadastro() {
             </Label>
             <Input
               id="nomePaciente"
-              {...register("nomemPaciente")}
+              {...register("name")}
               type="text"
               placeholder="Digite aqui..."
               className="border-black p-2"
             />
-            {errors.nomemPaciente && (
+            {errors.name && (
               <p className="text-red-500 text-sm mt-1">
-                {errors.nomemPaciente.message}
+                {errors.name.message}
               </p>
             )}
           </div>
 
           <div className="flex flex-col">
-            <Label htmlFor="nomeTutor" className="font-medium mb-2">
+            <Label htmlFor="tutorName" className="font-medium mb-2">
               Nome do Tutor
             </Label>
             <Input
-              id="nomeTutor"
-              {...register("nomeTutor")}
+              id="tutorName"
+              {...register("tutorName")}
               type="text"
               placeholder="Digite aqui..."
               className="border-black p-2"
             />
-            {errors.nomeTutor && (
+            {errors.tutorName && (
               <p className="text-red-500 text-sm mt-1">
-                {errors.nomeTutor.message}
+                {errors.tutorName.message}
               </p>
             )}
           </div>
@@ -158,9 +146,9 @@ export default function TelaCadastro() {
                 <div
                   key={animal.name}
                   className={`p-2 rounded-md cursor-pointer w-[120px] h-[120px] flex items-center justify-center
-                  ${especie === animal.name ? "bg-[#D9D9D9]" : ""}`}
+                  ${species === animal.name ? "bg-[#D9D9D9]" : ""}`}
                   onClick={() =>
-                    setValue("especie", animal.name, { shouldValidate: true })
+                    setValue("species", animal.name, { shouldValidate: true })
                   }
                 >
                   <Image
@@ -172,27 +160,27 @@ export default function TelaCadastro() {
                 </div>
               ))}
             </div>
-            {errors.especie && (
+            {errors.species && (
               <p className="text-red-500 text-sm mt-1">
-                {errors.especie.message}
+                {errors.species.message}
               </p>
             )}
           </div>
 
           <div className="flex flex-col">
-            <Label htmlFor="idadePaciente" className="font-medium mb-2">
+            <Label htmlFor="age" className="font-medium mb-2">
               Idade do paciente
             </Label>
             <Input
-              id="idadePaciente"
-              {...register("idadePaciente")}
+              id="age"
+              {...register("age")}
               type="text"
               placeholder="Digite aqui..."
               className="border-black p-2"
             />
-            {errors.idadePaciente && (
+            {errors.age && (
               <p className="text-red-500 text-sm mt-1">
-                {errors.idadePaciente.message}
+                {errors.age.message}
               </p>
             )}
           </div>
@@ -214,7 +202,7 @@ export default function TelaCadastro() {
             reset();
           }}
           patientId={createdPatientData.id}
-          patientDisplayName={createdPatientData.name || createdPatientData.nomemPaciente}
+          patientDisplayName={createdPatientData.name || createdPatientData.name}
         />
       )}
 
