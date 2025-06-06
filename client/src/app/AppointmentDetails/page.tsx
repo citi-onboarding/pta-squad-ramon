@@ -3,7 +3,7 @@ import { BadgeCheck } from 'lucide-react';
 import { ChevronLeft } from "lucide-react";
 import Header from "@/components/Header";
 import { CardHistory } from "@/components/CardHistory";
-import { Cat, Cachorro, Girafa, Ovelha, Porco, Cavalo } from "@/assets";
+import { Cat, Cachorro, vaca, Ovelha, Porco, Cavalo } from "@/assets";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
@@ -30,7 +30,7 @@ const mockedAppointment: {[key:string]: any} = {
     "Porco": Porco,
     "Cavalo": Cavalo,
     "Ovelha": Ovelha,
-    "Vaca": Girafa
+    "Vaca": vaca
   };
 
 
