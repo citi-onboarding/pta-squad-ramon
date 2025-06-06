@@ -13,9 +13,7 @@ import { useState } from "react";
 import api from "@/services/api";
 
 const formSchema = z.object({
-  name: z
-    .string()
-    .min(1, { message: "Nome do paciente é obrigatório" }),
+  name: z.string().min(1, { message: "Nome do paciente é obrigatório" }),
   tutorName: z.string().min(1, { message: "Nome do tutor é obrigatório" }),
   species: z.string().min(1, { message: "Selecione uma espécie" }),
   age: z
@@ -29,7 +27,11 @@ type FormData = z.infer<typeof formSchema>;
 export default function TelaCadastro() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmittingPatient, setIsSubmittingPatient] = useState(false);
-  const [createdPatientData, setCreatedPatientData] = useState<{ id: string; name?: string; [key: string]: any } | null>(null);
+  const [createdPatientData, setCreatedPatientData] = useState<{
+    id: string;
+    name?: string;
+    [key: string]: any;
+  } | null>(null);
 
   const animais = [
     { name: "ovelha", src: Ovelha, alt: "Ovelha" },
@@ -61,9 +63,11 @@ export default function TelaCadastro() {
   const species = watch("species");
 
   const onSubmitPatient = async (data: FormData) => {
+    // 1. Ativa o estado de carregamento para feedback visual (ex: desabilitar o botão)
     setIsSubmittingPatient(true);
-    setCreatedPatientData(null);
+    setCreatedPatientData(null); // Limpa dados de uma tentativa anterior
 
+    // 2. Prepara os dados para enviar à API, convertendo a idade para número
     const patientPayload = {
       name: data.name,
       tutorName: data.tutorName,
@@ -71,15 +75,42 @@ export default function TelaCadastro() {
       age: Number(data.age),
     };
 
-    console.log("Paciente cadastrado com sucesso:", patientPayload);
     try {
+      // 3. Envia os dados para o backend e aguarda a resposta
       const response = await api.post("/patients", patientPayload);
 
-      setCreatedPatientData(response.data);
-      setIsModalOpen(true);
-    } catch {
-      alert("Falha ao cadastrar o paciente.");
+      // 4. VERIFICAÇÃO DE SEGURANÇA:
+      // Mesmo com o backend corrigido, é uma boa prática garantir que a resposta
+      // contém os dados esperados antes de prosseguir.
+      if (response.data && response.data.id) {
+        // SUCESSO: A resposta contém o ID.
+        console.log(
+          "Paciente criado com sucesso, ID recebido:",
+          response.data.id
+        );
+
+        // Guarda os dados do paciente recém-criado no estado
+        setCreatedPatientData(response.data);
+
+        // Abre o modal para o próximo passo
+        setIsModalOpen(true);
+      } else {
+        // A resposta da API não veio como o esperado (sem ID)
+        console.error(
+          "A resposta da API não continha um ID válido.",
+          response.data
+        );
+        alert("Ocorreu um erro inesperado ao processar os dados do paciente.");
+      }
+    } catch (error) {
+      // 5. TRATAMENTO DE ERRO:
+      // Captura erros de rede ou falhas do servidor (ex: status 500)
+      console.error("Falha na requisição para cadastrar o paciente:", error);
+      alert(
+        "Não foi possível se comunicar com o servidor. Tente novamente mais tarde."
+      );
     } finally {
+      // 6. Finaliza o estado de carregamento, independentemente de sucesso ou falha
       setIsSubmittingPatient(false);
     }
   };
@@ -113,9 +144,7 @@ export default function TelaCadastro() {
               className="border-black p-2"
             />
             {errors.name && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.name.message}
-              </p>
+              <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
             )}
           </div>
 
@@ -179,9 +208,7 @@ export default function TelaCadastro() {
               className="border-black p-2"
             />
             {errors.age && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.age.message}
-              </p>
+              <p className="text-red-500 text-sm mt-1">{errors.age.message}</p>
             )}
           </div>
         </form>
@@ -197,15 +224,16 @@ export default function TelaCadastro() {
 
       {isModalOpen && createdPatientData && (
         <ModalCadastro
-          onClose={() => { 
+          onClose={() => {
             setIsModalOpen(false);
             reset();
           }}
           patientId={createdPatientData.id}
-          patientDisplayName={createdPatientData.name || createdPatientData.name}
+          patientDisplayName={
+            createdPatientData.name || createdPatientData.name
+          }
         />
       )}
-
     </>
   );
 }

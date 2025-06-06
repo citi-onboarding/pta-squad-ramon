@@ -24,25 +24,17 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import api from '@/services/api';
+import { time } from 'console';
 
 
+// 1. SCHEMA REVERTIDO PARA VALIDAR A DATA COMO STRING 'dd/mm/aa'
 const formSchema = z.object({
   tipoConsulta: z.string().min(1, { message: 'Tipo de consulta é obrigatório' }),
   medicoResponsavel: z.string().min(1, { message: 'Médico responsável é obrigatório' }),
   dataAtendimento: z.string().min(1, { message: 'Data de atendimento é obrigatória' })
-    .regex(/^\d{2}\/\d{2}\/\d{2}$/, { message: 'Data deve estar no formato dd/mm/aa' })
-    .refine((val) => {
-      const [d, m, a] = val.split('/').map(Number);
-      const fullYear = 2000 + a;
-      const date = new Date(fullYear, m - 1, d);
-      return date.getFullYear() === fullYear && date.getMonth() === m - 1 && date.getDate() === d;
-    }, { message: 'Data inválida' }),
+    .regex(/^\d{2}\/\d{2}\/\d{2}$/, { message: 'Data deve estar no formato dd/mm/aa' }),
   horaAtendimento: z.string().min(1, { message: 'Hora de atendimento é obrigatória' })
-    .regex(/^\d{2}:\d{2}$/, { message: 'Hora deve estar no formato hh:mm' })
-    .refine((val) => {
-      const [h, m] = val.split(':').map(Number);
-      return h >= 0 && h < 24 && m >= 0 && m < 60;
-    }, { message: 'Hora inválida'}),
+    .regex(/^\d{2}:\d{2}$/, { message: 'Hora deve estar no formato hh:mm' }),
   descricao: z.string().min(1, { message: 'Descrição do problema é obrigatória' }),
 });
 
@@ -67,23 +59,45 @@ export default function ModalConsulta({onClose, patientId, patientDisplayName}: 
     },
   });
 
+  // 2. RE-ADICIONADO O ESTADO LOCAL PARA CONTROLAR A SELEÇÃO NO CALENDÁRIO
   const [date, setDate] = useState<Date | undefined>();
   const [isLoading, setIsLoading] = useState(false);
 
+  // 4. PAYLOAD DE ENVIO AJUSTADO PARA USAR 'date' E 'time'
   const onSubmitAppointment = async (data: FormData) => {
+    console.log("Dados da consulta:", data);
     setIsLoading(true);
+
+    // Combine date and time into a single Date object
+    let appointmentDateTime: Date | null = null;
+    try {
+      const [day, month, year] = data.dataAtendimento.split('/');
+      const [hour, minute] = data.horaAtendimento.split(':');
+      appointmentDateTime = new Date(
+        2000 + parseInt(year, 10), // assumes year is 'yy'
+        parseInt(month, 10) - 1,
+        parseInt(day, 10),
+        parseInt(hour, 10),
+        parseInt(minute, 10)
+      );
+    } catch (e) {
+      alert("Data ou hora inválida.");
+      setIsLoading(false);
+      return;
+    }
 
     const appointmentPayload = {
       patientId: patientId,
       appointmentType: data.tipoConsulta,
       doctor: data.medicoResponsavel,
-      date: data.dataAtendimento,
-      time: data.horaAtendimento,
+      date: appointmentDateTime.toISOString(), // Campo 'time' com a string "hh:mm"
+      time: data.horaAtendimento, // Campo 'time' com a string "hh:mm"
       description: data.descricao,
     };
 
+    console.log("Payload da consulta:", appointmentPayload);
     try{
-        await api.post('/api/appointments', appointmentPayload);
+        await api.post('/appointments', appointmentPayload);
         
         alert(`Consulta para ${patientDisplayName || 'o paciente'} agendada com sucesso!`);
         reset();
@@ -106,7 +120,7 @@ export default function ModalConsulta({onClose, patientId, patientDisplayName}: 
   return (
     <div className="p-2 sm:p-4 md:p-6 lg:p-8 flex items-center justify-center fixed inset-0 z-50 bg-black bg-opacity-10">
       <Card className={cn("rounded-2xl px-12 py-12 w-full max-w-[824px] shadow-xl relative bg-white")}>
-      
+        
         <div className='flex justify-end'>
           <button onClick={onClose} className='absolute top-4 right-4 text-2xl font-bold'>&times;</button>
         </div>
@@ -116,8 +130,9 @@ export default function ModalConsulta({onClose, patientId, patientDisplayName}: 
         </div>
         <h3 className='text-center text-[16px] font-bold mb-9'>O pet já está cadastrado no sistema! <span className='font-medium'>Preencha os dados da </span>consulta </h3>
 
-        <form className='grid grid-cols-1 md:grid-cols-2 gap-4' onSubmit={handleSubmit(onSubmitAppointment)}>
+        <form className='grid grid-cols-1 md:grid-cols-2 gap-6' onSubmit={handleSubmit(onSubmitAppointment)}>
 
+          {/* CAMPO TIPO DE CONSULTA */}
           <div className="flex flex-col">
             <Label className="font-bold mb-3">Tipo de consulta</Label>
             <Controller
@@ -131,7 +146,7 @@ export default function ModalConsulta({onClose, patientId, patientDisplayName}: 
                   <SelectContent>
                     <SelectGroup>
                       <SelectItem value="primeira">Primeira Consulta</SelectItem>
-                      <SelectItem value="retorno">Retorno</SelectItem>
+                      <SelectItem value="retorno">retorno</SelectItem>
                       <SelectItem value="check-up">Check-up</SelectItem>
                       <SelectItem value="vacinacao">Vacinação</SelectItem>
                     </SelectGroup>
@@ -142,7 +157,7 @@ export default function ModalConsulta({onClose, patientId, patientDisplayName}: 
             {errors.tipoConsulta && <p className="text-red-500 text-sm mt-1">{errors.tipoConsulta.message}</p>}
           </div>
 
-          
+          {/* CAMPO MÉDICO RESPONSÁVEL */}
           <div className="flex flex-col">
             <Label className="font-bold mb-3">Médico Responsável</Label>
             <Controller
@@ -155,11 +170,11 @@ export default function ModalConsulta({onClose, patientId, patientDisplayName}: 
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectItem value="DrCarlos">Dr. Carlos Eduardo Silva</SelectItem>
-                      <SelectItem value="DrAnaBeatriz">Dra. Ana Beatriz Oliveira</SelectItem>
-                      <SelectItem value="DrRoberto">Dr. Roberto Lima</SelectItem>
-                      <SelectItem value="DraFernanda">Dra. Fernanda Costa</SelectItem>
-                      <SelectItem value="DrMiguel/">Dr. Miguel Santos Pereira</SelectItem>
+                      <SelectItem value="Dr Carlos">Dr. Carlos Eduardo Silva</SelectItem>
+                      <SelectItem value="Dr Ana Beatriz">Dra. Ana Beatriz Oliveira</SelectItem>
+                      <SelectItem value="Dr Roberto">Dr. Roberto Lima</SelectItem>
+                      <SelectItem value="Dra Fernanda">Dra. Fernanda Costa</SelectItem>
+                      <SelectItem value="Dr Miguel">Dr. Miguel Santos Pereira</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -167,8 +182,8 @@ export default function ModalConsulta({onClose, patientId, patientDisplayName}: 
             />
             {errors.medicoResponsavel && <p className="text-red-500 text-sm mt-1">{errors.medicoResponsavel.message}</p>}
           </div>
-
           
+          {/* 3. LÓGICA DO CALENDÁRIO AJUSTADA */}
           <div className='flex flex-col'>
             <Label className='font-bold mb-3'>Data do atendimento</Label>
             <Controller
@@ -184,11 +199,8 @@ export default function ModalConsulta({onClose, patientId, patientDisplayName}: 
                         !field.value && "text-muted-foreground"
                       )}
                     >
-                      
-                      {field.value
-                        ? field.value
-                        : <span>dd/mm/aa</span>}
-                        <CalendarIcon className="w-full text-black" />
+                      {field.value ? field.value : <span>dd/mm/aa</span>}
+                      <CalendarIcon className="h-4 w-4" />
                     </ButtonComponent>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
@@ -210,28 +222,28 @@ export default function ModalConsulta({onClose, patientId, patientDisplayName}: 
             />
             {errors.dataAtendimento && <p className="text-red-500 text-sm mt-1">{errors.dataAtendimento.message}</p>}
           </div>
-
           
+          {/* CAMPO HORÁRIO DO ATENDIMENTO */}
           <div className='flex flex-col'>
             <Label htmlFor='horaAtendimento' className='font-bold mb-3'>Horário do atendimento</Label>
             <div className='relative'>
               <Input
                 id='horaAtendimento'
                 type="text"
-                placeholder="00:00"
+                placeholder="HH:MM"
                 {...register('horaAtendimento')}
                 className="w-full border border-black p-2 text-black"
               />
-              <Clock className="absolute right-3 top-[65%] transform -translate-y-3/4 text-black h-[18px] w-[18px]" />
+              <Clock className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black h-[18px] w-[18px]" />
             </div>
             {errors.horaAtendimento && <p className="text-red-500 text-sm mt-1">{errors.horaAtendimento.message}</p>}
           </div>
 
+          {/* CAMPO DESCRIÇÃO DO PROBLEMA */}
           <div className='col-span-2 w-full'>
             <div className='mb-2'>
               <Label htmlFor="descricao" className="font-bold mb-2">Descrição do Problema</Label>
             </div>
-            
             <Input
               id="descricao"
               {...register('descricao')}
@@ -242,17 +254,13 @@ export default function ModalConsulta({onClose, patientId, patientDisplayName}: 
             {errors.descricao && <p className="text-red-500 text-sm mt-1">{errors.descricao.message}</p>}
           </div>
 
-          <div className="mt-5 col-span-2  flex justify-center">
+          <div className="mt-5 col-span-2 flex justify-center">
             <Button
               texto="Finalizar Cadastro"
-              cor="bg-[#50E678]"
-              onClick={handleSubmit(onSubmitAppointment)}
-            />
+              cor="bg-[#50E678]" onClick={undefined}            />
           </div>
-
         </form>
       </Card>
-
     </div>
   );
 }
