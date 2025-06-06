@@ -10,14 +10,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import ModalCadastro from "@/components/ModalCadastro";
 import { useState } from "react";
+import api from "@/services/api";
 
 const formSchema = z.object({
-  nomemPaciente: z
-    .string()
-    .min(1, { message: "Nome do paciente é obrigatório" }),
-  nomeTutor: z.string().min(1, { message: "Nome do tutor é obrigatório" }),
-  especie: z.string().min(1, { message: "Selecione uma espécie" }),
-  idadePaciente: z
+  name: z.string().min(1, { message: "Nome do paciente é obrigatório" }),
+  tutorName: z.string().min(1, { message: "Nome do tutor é obrigatório" }),
+  species: z.string().min(1, { message: "Selecione uma espécie" }),
+  age: z
     .string()
     .min(1, { message: "Idade do paciente é obrigatória" })
     .regex(/^\d+$/, { message: "Idade deve ser um número" }),
@@ -27,14 +26,20 @@ type FormData = z.infer<typeof formSchema>;
 
 export default function TelaCadastro() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubmittingPatient, setIsSubmittingPatient] = useState(false);
+  const [createdPatientData, setCreatedPatientData] = useState<{
+    id: string;
+    name?: string;
+    [key: string]: any;
+  } | null>(null);
 
   const animais = [
-    { name: "Ovelha", src: Ovelha, alt: "Ovelha" },
-    { name: "Cachorro", src: Cachorro, alt: "Cachorro" },
-    { name: "Gato", src: Gato, alt: "Gato" },
+    { name: "ovelha", src: Ovelha, alt: "Ovelha" },
+    { name: "cachorro", src: Cachorro, alt: "Cachorro" },
+    { name: "gato", src: Gato, alt: "Gato" },
     { name: "vaca", src: vaca, alt: "vaca" },
-    { name: "Porco", src: Porco, alt: "Porco" },
-    { name: "Cavalo", src: Cavalo, alt: "Cavalo" },
+    { name: "porco", src: Porco, alt: "Porco" },
+    { name: "cavalo", src: Cavalo, alt: "Cavalo" },
   ];
 
   const {
@@ -43,22 +48,71 @@ export default function TelaCadastro() {
     control,
     setValue,
     watch,
+    reset,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      nomemPaciente: "",
-      nomeTutor: "",
-      especie: "",
-      idadePaciente: "",
+      name: "",
+      tutorName: "",
+      species: "",
+      age: "",
     },
   });
 
-  const especie = watch("especie");
+  const species = watch("species");
 
-  const onSubmit = (data: FormData) => {
-    console.log(data);
-    setIsModalOpen(true);
+  const onSubmitPatient = async (data: FormData) => {
+    // 1. Ativa o estado de carregamento para feedback visual (ex: desabilitar o botão)
+    setIsSubmittingPatient(true);
+    setCreatedPatientData(null); // Limpa dados de uma tentativa anterior
+
+    // 2. Prepara os dados para enviar à API, convertendo a idade para número
+    const patientPayload = {
+      name: data.name,
+      tutorName: data.tutorName,
+      species: data.species,
+      age: Number(data.age),
+    };
+
+    try {
+      // 3. Envia os dados para o backend e aguarda a resposta
+      const response = await api.post("/patients", patientPayload);
+
+      // 4. VERIFICAÇÃO DE SEGURANÇA:
+      // Mesmo com o backend corrigido, é uma boa prática garantir que a resposta
+      // contém os dados esperados antes de prosseguir.
+      if (response.data && response.data.id) {
+        // SUCESSO: A resposta contém o ID.
+        console.log(
+          "Paciente criado com sucesso, ID recebido:",
+          response.data.id
+        );
+
+        // Guarda os dados do paciente recém-criado no estado
+        setCreatedPatientData(response.data);
+
+        // Abre o modal para o próximo passo
+        setIsModalOpen(true);
+      } else {
+        // A resposta da API não veio como o esperado (sem ID)
+        console.error(
+          "A resposta da API não continha um ID válido.",
+          response.data
+        );
+        alert("Ocorreu um erro inesperado ao processar os dados do paciente.");
+      }
+    } catch (error) {
+      // 5. TRATAMENTO DE ERRO:
+      // Captura erros de rede ou falhas do servidor (ex: status 500)
+      console.error("Falha na requisição para cadastrar o paciente:", error);
+      alert(
+        "Não foi possível se comunicar com o servidor. Tente novamente mais tarde."
+      );
+    } finally {
+      // 6. Finaliza o estado de carregamento, independentemente de sucesso ou falha
+      setIsSubmittingPatient(false);
+    }
   };
 
   return (
@@ -76,7 +130,7 @@ export default function TelaCadastro() {
       <div className="px-4 md:px-12 lg:px-48 overflow-y-auto">
         <form
           className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4"
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleSubmit(onSubmitPatient)}
         >
           <div className="flex flex-col mb-3">
             <Label htmlFor="nomePaciente" className="font-medium mb-2">
@@ -84,32 +138,30 @@ export default function TelaCadastro() {
             </Label>
             <Input
               id="nomePaciente"
-              {...register("nomemPaciente")}
+              {...register("name")}
               type="text"
               placeholder="Digite aqui..."
               className="border-black p-2"
             />
-            {errors.nomemPaciente && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.nomemPaciente.message}
-              </p>
+            {errors.name && (
+              <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
             )}
           </div>
 
           <div className="flex flex-col">
-            <Label htmlFor="nomeTutor" className="font-medium mb-2">
+            <Label htmlFor="tutorName" className="font-medium mb-2">
               Nome do Tutor
             </Label>
             <Input
-              id="nomeTutor"
-              {...register("nomeTutor")}
+              id="tutorName"
+              {...register("tutorName")}
               type="text"
               placeholder="Digite aqui..."
               className="border-black p-2"
             />
-            {errors.nomeTutor && (
+            {errors.tutorName && (
               <p className="text-red-500 text-sm mt-1">
-                {errors.nomeTutor.message}
+                {errors.tutorName.message}
               </p>
             )}
           </div>
@@ -123,9 +175,9 @@ export default function TelaCadastro() {
                 <div
                   key={animal.name}
                   className={`p-2 rounded-md cursor-pointer w-[120px] h-[120px] flex items-center justify-center
-                  ${especie === animal.name ? "bg-[#D9D9D9]" : ""}`}
+                  ${species === animal.name ? "bg-[#D9D9D9]" : ""}`}
                   onClick={() =>
-                    setValue("especie", animal.name, { shouldValidate: true })
+                    setValue("species", animal.name, { shouldValidate: true })
                   }
                 >
                   <Image
@@ -137,28 +189,26 @@ export default function TelaCadastro() {
                 </div>
               ))}
             </div>
-            {errors.especie && (
+            {errors.species && (
               <p className="text-red-500 text-sm mt-1">
-                {errors.especie.message}
+                {errors.species.message}
               </p>
             )}
           </div>
 
           <div className="flex flex-col">
-            <Label htmlFor="idadePaciente" className="font-medium mb-2">
+            <Label htmlFor="age" className="font-medium mb-2">
               Idade do paciente
             </Label>
             <Input
-              id="idadePaciente"
-              {...register("idadePaciente")}
+              id="age"
+              {...register("age")}
               type="text"
               placeholder="Digite aqui..."
               className="border-black p-2"
             />
-            {errors.idadePaciente && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.idadePaciente.message}
-              </p>
+            {errors.age && (
+              <p className="text-red-500 text-sm mt-1">{errors.age.message}</p>
             )}
           </div>
         </form>
@@ -168,11 +218,22 @@ export default function TelaCadastro() {
         <Button
           texto="Finalizar Cadastro"
           cor="bg-[#50E678]"
-          onClick={handleSubmit(onSubmit)}
+          onClick={handleSubmit(onSubmitPatient)}
         />
       </div>
 
-      {isModalOpen && <ModalCadastro onClose={() => setIsModalOpen(false)} />}
+      {isModalOpen && createdPatientData && (
+        <ModalCadastro
+          onClose={() => {
+            setIsModalOpen(false);
+            reset();
+          }}
+          patientId={createdPatientData.id}
+          patientDisplayName={
+            createdPatientData.name || createdPatientData.name
+          }
+        />
+      )}
     </>
   );
 }
