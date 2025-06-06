@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import api from '@/services/api';
 
 
 const formSchema = z.object({
@@ -49,11 +50,13 @@ type FormData = z.infer<typeof formSchema>;
 
 interface ModalProps {
   onClose: () => void;
+  patientId: string | number;
+  patientDisplayName?: string;
 }
 
-export default function ModalConsulta({onClose}: ModalProps) {
+export default function ModalConsulta({onClose, patientId, patientDisplayName}: ModalProps) {
 
-  const { register, handleSubmit, control, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       tipoConsulta: '',
@@ -65,14 +68,39 @@ export default function ModalConsulta({onClose}: ModalProps) {
   });
 
   const [date, setDate] = useState<Date | undefined>();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const onSubmit = (data: FormData) => {
-    console.log(data);
+  const onSubmitAppointment = async (data: FormData) => {
+    setIsLoading(true);
+
+    const appointmentPayload = {
+      patientId: patientId,
+      appointmentType: data.tipoConsulta,
+      doctor: data.medicoResponsavel,
+      date: data.dataAtendimento,
+      time: data.horaAtendimento,
+      description: data.descricao,
+    };
+
     try{
+        await api.post('/api/appointments', appointmentPayload);
+        
+        alert(`Consulta para ${patientDisplayName || 'o paciente'} agendada com sucesso!`);
+        reset();
         onClose();
-    } catch (error) {
-        console.error("Erro ao finalizar cadastro:", error);
-    }
+
+    } catch (error: any) {
+        console.error("Erro ao agendar consulta:", error);
+        let errorMessage = "Falha ao agendar a consulta.";
+        if (error.response?.data.message) {
+          errorMessage = error.response.data.message;
+        } else if (error.response?.data?.error) {
+          errorMessage = error.response.data.error;
+        }
+          alert(`Erro: ${errorMessage}`);
+      } finally {
+        setIsLoading(false);
+      }
   };
 
   return (
@@ -88,7 +116,7 @@ export default function ModalConsulta({onClose}: ModalProps) {
         </div>
         <h3 className='text-center text-[16px] font-bold mb-9'>O pet já está cadastrado no sistema! <span className='font-medium'>Preencha os dados da </span>consulta </h3>
 
-        <form className='grid grid-cols-1 md:grid-cols-2 gap-4' onSubmit={handleSubmit(onSubmit)}>
+        <form className='grid grid-cols-1 md:grid-cols-2 gap-4' onSubmit={handleSubmit(onSubmitAppointment)}>
 
           <div className="flex flex-col">
             <Label className="font-bold mb-3">Tipo de consulta</Label>
@@ -218,7 +246,7 @@ export default function ModalConsulta({onClose}: ModalProps) {
             <Button
               texto="Finalizar Cadastro"
               cor="bg-[#50E678]"
-              onClick={handleSubmit(onSubmit)}
+              onClick={handleSubmit(onSubmitAppointment)}
             />
           </div>
 

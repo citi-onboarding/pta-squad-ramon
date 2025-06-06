@@ -10,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import ModalCadastro from "@/components/ModalCadastro";
 import { useState } from "react";
+import api from "@/services/api";
 
 const formSchema = z.object({
   nomemPaciente: z
@@ -27,6 +28,8 @@ type FormData = z.infer<typeof formSchema>;
 
 export default function TelaCadastro() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubmittingPatient, setIsSubmittingPatient] = useState(false);
+  const [createdPatientData, setCreatedPatientData] = useState<{ id: string; name?: string; [key: string]: any } | null>(null);
 
   const animais = [
     { name: "Ovelha", src: Ovelha, alt: "Ovelha" },
@@ -43,6 +46,7 @@ export default function TelaCadastro() {
     control,
     setValue,
     watch,
+    reset,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -56,9 +60,40 @@ export default function TelaCadastro() {
 
   const especie = watch("especie");
 
-  const onSubmit = (data: FormData) => {
-    console.log(data);
-    setIsModalOpen(true);
+  const onSubmitPatient = async (data: FormData) => {
+    setIsSubmittingPatient(true);
+    setCreatedPatientData(null);
+
+    const patientPayload = {
+      name: data.nomemPaciente,
+      tutorName: data.nomeTutor,
+      species: data.especie,
+      age: data.idadePaciente,
+    };
+
+    try {
+      const response = await api.post("/api/patients", patientPayload);
+      
+      if (!response.data || !response.data.id) {
+        console.error("Resposta da API inválida. ID do paciente não encontrado.", response.data);
+        throw new Error("ID do paciente não retornado pela API.");
+      }
+
+      setCreatedPatientData(response.data);
+      setIsModalOpen(true);
+      
+    } catch (error: any) {
+      console.error("Erro ao criar paciente:", error);
+      let errorMessage = "Falha ao cadastrar o paciente.";
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response.data.message) {
+        errorMessage = error.response.data.error;
+      }
+      alert(`Erro: ${errorMessage}`);
+    } finally {
+      setIsSubmittingPatient(false);
+    }
   };
 
   return (
@@ -76,7 +111,7 @@ export default function TelaCadastro() {
       <div className="px-4 md:px-12 lg:px-48 overflow-y-auto">
         <form
           className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4"
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleSubmit(onSubmitPatient)}
         >
           <div className="flex flex-col mb-3">
             <Label htmlFor="nomePaciente" className="font-medium mb-2">
@@ -168,11 +203,21 @@ export default function TelaCadastro() {
         <Button
           texto="Finalizar Cadastro"
           cor="bg-[#50E678]"
-          onClick={handleSubmit(onSubmit)}
+          onClick={handleSubmit(onSubmitPatient)}
         />
       </div>
 
-      {isModalOpen && <ModalCadastro onClose={() => setIsModalOpen(false)} />}
+      {isModalOpen && createdPatientData && (
+        <ModalCadastro
+          onClose={() => { 
+            setIsModalOpen(false);
+            reset();
+          }}
+          patientId={createdPatientData.id}
+          patientDisplayName={createdPatientData.name || createdPatientData.nomemPaciente}
+        />
+      )}
+
     </>
   );
 }
