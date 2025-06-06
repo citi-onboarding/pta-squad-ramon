@@ -50,7 +50,7 @@ class AppointmentController implements Crud {
         },
       });
 
-      const dadosFormatados = appointmentsComPacientes.map((app) => ({
+      const dadosFormatados = appointmentsComPacientes.map((app: { id: any; date: any; appointmentType: any; doctor: any; description: any; patient: { name: any; tutorName: any; species: any; }; }) => ({
         id: app.id,
         date: app.date,
         appointmentType: app.appointmentType,
