@@ -245,10 +245,9 @@ export default function TelaAtendimento() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mt-8 max-h-[326px] overflow-y-scroll scrollbar-none">
                   {cardsFiltrados.map((card, idx) => ( //renderização dos cards por filtro
                     <CardConsultaPet
-                      key={idx}
+                      especie={""} id={""} key={idx}
                       {...card}
-                      tipoConsulta={card.tipoConsulta as "primeira consulta" | "retorno" | "check-up" | "vacinação"}
-                    />
+                      tipoConsulta={card.tipoConsulta as "primeira consulta" | "retorno" | "check-up" | "vacinação"}                    />
                   ))}
                 </div>
               </TabsContent>
@@ -260,10 +259,9 @@ export default function TelaAtendimento() {
                 <div className="grid grid-cols-3 gap-6 w-full pt-8 max-h-[326px] overflow-y-scroll scrollbar-none">
                   {cardsFiltrados.map((card, idx) => (
                     <CardConsultaPet
-                      key={idx}
+                      especie={""} id={""} key={idx}
                       {...card}
-                      tipoConsulta={card.tipoConsulta as "primeira consulta" | "retorno" | "check-up" | "vacinação"}
-                    />
+                      tipoConsulta={card.tipoConsulta as "primeira consulta" | "retorno" | "check-up" | "vacinação"}                    />
                   ))}
                 </div>
               </TabsContent>
