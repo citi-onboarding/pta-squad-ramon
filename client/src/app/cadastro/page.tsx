@@ -4,7 +4,7 @@ import Button from "@/components/Buttons";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
-import { Ovelha, Cachorro, Gato, Girafa, Porco, Cavalo } from "@/assets";
+import { Ovelha, Cachorro, Gato, vaca, Porco, Cavalo } from "@/assets";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -32,7 +32,7 @@ export default function TelaCadastro() {
     { name: "Ovelha", src: Ovelha, alt: "Ovelha" },
     { name: "Cachorro", src: Cachorro, alt: "Cachorro" },
     { name: "Gato", src: Gato, alt: "Gato" },
-    { name: "Girafa", src: Girafa, alt: "Girafa" },
+    { name: "vaca", src: vaca, alt: "vaca" },
     { name: "Porco", src: Porco, alt: "Porco" },
     { name: "Cavalo", src: Cavalo, alt: "Cavalo" },
   ];

@@ -196,9 +196,10 @@ export default function TelaAtendimento() {
               >
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mt-8 max-h-[326px] overflow-y-scroll scrollbar-none">
                   {cardsFiltrados.map((appointment) => (
+                    console.log(appointment),
                     <CardConsultaPet
                       key={appointment.id}
-                      appointment={appointment}
+                      {...appointment}
                     />
                   ))}
                 </div>
@@ -210,9 +211,10 @@ export default function TelaAtendimento() {
               >
                 <div className="grid grid-cols-3 gap-6 w-full pt-8 max-h-[326px] overflow-y-scroll scrollbar-none">
                   {cardsFiltrados.map((appointment) => (
+                    console.log(appointment),
                     <CardConsultaPet
                       key={appointment.id}
-                      appointment={appointment}
+                      {...appointment}
                     />
                   ))}
                 </div>
